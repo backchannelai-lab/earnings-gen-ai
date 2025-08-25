@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Now</title>
+</head>
+<body>
+    <h1>Test Context Analysis NOW</h1>
+    
+    <button onclick="test()">CLICK HERE TO TEST</button>
+    
+    <div id="output"></div>
+    
+    <script>
+        async function test() {
+            document.getElementById('output').innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch('/api/analyze-context', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        prompt: 'Analyze ONLY this: "Utilization rates remained stable at 78.2%"' 
+                    })
+                });
+                
+                const data = await response.json();
+                console.log('Response:', data);
+                
+                if (data.content && data.content[0]) {
+                    document.getElementById('output').innerHTML = 
+                        '<h3>RESULT:</h3><pre>' + data.content[0].text + '</pre>';
+                } else {
+                    document.getElementById('output').innerHTML = 
+                        '<h3>ERROR:</h3><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                }
+                
+            } catch (error) {
+                document.getElementById('output').innerHTML = 
+                    '<h3>ERROR:</h3><pre>' + error.message + '</pre>';
+            }
+        }
+    </script>
+</body>
+</html>

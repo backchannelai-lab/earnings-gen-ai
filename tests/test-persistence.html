@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Persistence Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 3px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Document Persistence Test</h1>
+    
+    <div class="test-section">
+        <h3>Test Document Storage</h3>
+        <button onclick="testSaveDocument()">Save Test Document</button>
+        <button onclick="testLoadDocuments()">Load Documents</button>
+        <button onclick="testClearDocuments()">Clear All Documents</button>
+        <button onclick="checkLocalStorage()">Check localStorage</button>
+        <div id="testResults"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Current localStorage Status</h3>
+        <div id="storageStatus"></div>
+    </div>
+
+    <script>
+        function showResult(message, isSuccess = true) {
+            const resultsDiv = document.getElementById('testResults');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${isSuccess ? 'success' : 'error'}`;
+            resultDiv.textContent = message;
+            resultsDiv.appendChild(resultDiv);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => resultDiv.remove(), 5000);
+        }
+
+        function testSaveDocument() {
+            try {
+                const testDoc = {
+                    name: 'test-document.pdf',
+                    text: 'This is a test document content for testing persistence.',
+                    analysis: {
+                        document_type: 'PDF',
+                        period: '2025',
+                        summary: 'Test document for persistence testing'
+                    },
+                    summary: 'Test document summary',
+                    timestamp: new Date().toISOString()
+                };
+
+                // Save to localStorage
+                const existingDocs = JSON.parse(localStorage.getItem('earningsGenAI_documents') || '[]');
+                existingDocs.push(testDoc);
+                localStorage.setItem('earningsGenAI_documents', JSON.stringify(existingDocs));
+                
+                showResult(`✅ Test document saved! Total documents: ${existingDocs.length}`);
+                updateStorageStatus();
+            } catch (error) {
+                showResult(`❌ Error saving document: ${error.message}`, false);
+            }
+        }
+
+        function testLoadDocuments() {
+            try {
+                const storedDocs = localStorage.getItem('earningsGenAI_documents');
+                if (storedDocs) {
+                    const docs = JSON.parse(storedDocs);
+                    showResult(`✅ Loaded ${docs.length} documents: ${docs.map(d => d.name).join(', ')}`);
+                } else {
+                    showResult('ℹ️ No documents found in localStorage');
+                }
+                updateStorageStatus();
+            } catch (error) {
+                showResult(`❌ Error loading documents: ${error.message}`, false);
+            }
+        }
+
+        function testClearDocuments() {
+            try {
+                localStorage.removeItem('earningsGenAI_documents');
+                showResult('✅ All documents cleared from localStorage');
+                updateStorageStatus();
+            } catch (error) {
+                showResult(`❌ Error clearing documents: ${error.message}`, false);
+            }
+        }
+
+        function checkLocalStorage() {
+            try {
+                const keys = Object.keys(localStorage);
+                const earningsKeys = keys.filter(key => key.includes('earnings'));
+                
+                let message = `📋 Total localStorage keys: ${keys.length}\n`;
+                message += `📋 Earnings-related keys: ${earningsKeys.length}\n`;
+                
+                if (earningsKeys.length > 0) {
+                    earningsKeys.forEach(key => {
+                        const value = localStorage.getItem(key);
+                        message += `\n🔑 Key: ${key}\n`;
+                        message += `📏 Value length: ${value ? value.length : 0}\n`;
+                        if (value && value.length < 200) {
+                            message += `📝 Preview: ${value.substring(0, 200)}...\n`;
+                        }
+                    });
+                }
+                
+                showResult(message);
+                updateStorageStatus();
+            } catch (error) {
+                showResult(`❌ Error checking localStorage: ${error.message}`, false);
+            }
+        }
+
+        function updateStorageStatus() {
+            const statusDiv = document.getElementById('storageStatus');
+            try {
+                const storedDocs = localStorage.getItem('earningsGenAI_documents');
+                if (storedDocs) {
+                    const docs = JSON.parse(storedDocs);
+                    statusDiv.innerHTML = `
+                        <p><strong>Status:</strong> <span style="color: green;">✅ Documents stored</span></p>
+                        <p><strong>Count:</strong> ${docs.length}</p>
+                        <p><strong>Names:</strong> ${docs.map(d => d.name).join(', ')}</p>
+                        <p><strong>Storage size:</strong> ${(storedDocs.length / 1024).toFixed(2)} KB</p>
+                    `;
+                } else {
+                    statusDiv.innerHTML = `
+                        <p><strong>Status:</strong> <span style="color: orange;">ℹ️ No documents stored</span></p>
+                        <p><strong>Count:</strong> 0</p>
+                    `;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <p><strong>Status:</strong> <span style="color: red;">❌ Error reading storage</span></p>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `;
+            }
+        }
+
+        // Initialize status on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStorageStatus();
+        });
+    </script>
+</body>
+</html>

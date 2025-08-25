@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Upload Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .upload-box { 
+            border: 2px dashed #ccc; 
+            padding: 40px; 
+            text-align: center; 
+            cursor: pointer; 
+            margin: 20px 0;
+        }
+        .upload-box:hover { border-color: #999; }
+        .file-list { margin-top: 20px; }
+        .file-item { 
+            background: #f0f0f0; 
+            padding: 10px; 
+            margin: 5px 0; 
+            border-radius: 4px;
+        }
+        .status { 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 4px;
+            background: #e8f4fd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple File Upload Test</h1>
+    
+    <input type="file" id="fileInput" accept=".txt,.pdf" style="display: none;">
+    
+    <div id="uploadBox" class="upload-box">
+        <h3>📁 Click here to upload a file</h3>
+        <p>or drag and drop</p>
+    </div>
+    
+    <div id="status" class="status">Ready to test</div>
+    
+    <div id="fileList" class="file-list"></div>
+    
+    <script>
+        // Simple, direct approach - no complex event handling
+        const fileInput = document.getElementById('fileInput');
+        const uploadBox = document.getElementById('uploadBox');
+        const status = document.getElementById('status');
+        const fileList = document.getElementById('fileList');
+        
+        let documents = [];
+        
+        function updateStatus(message) {
+            status.textContent = message;
+            console.log('Status:', message);
+        }
+        
+        function updateFileList() {
+            fileList.innerHTML = '';
+            documents.forEach(doc => {
+                const div = document.createElement('div');
+                div.className = 'file-item';
+                div.innerHTML = `<strong>${doc.name}</strong> - ${doc.text.length} chars`;
+                fileList.appendChild(div);
+            });
+        }
+        
+        // Simple click handler
+        uploadBox.onclick = function() {
+            console.log('Upload box clicked');
+            fileInput.click();
+        };
+        
+        // Simple file change handler
+        fileInput.onchange = function(e) {
+            console.log('File input changed');
+            console.log('Files:', e.target.files);
+            
+            if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                console.log('Processing file:', file.name);
+                
+                updateStatus(`Processing ${file.name}...`);
+                
+                // Simple text extraction
+                if (file.type === 'text/plain') {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const text = e.target.result;
+                        documents.push({
+                            name: file.name,
+                            text: text
+                        });
+                        
+                        updateStatus(`✅ ${file.name} uploaded successfully!`);
+                        updateFileList();
+                        
+                        // Clear input after success
+                        fileInput.value = '';
+                    };
+                    reader.readAsText(file);
+                } else {
+                    // For non-text files, just store the name
+                    documents.push({
+                        name: file.name,
+                        text: `File: ${file.name} (${file.size} bytes)`
+                    });
+                    
+                    updateStatus(`✅ ${file.name} uploaded successfully!`);
+                    updateFileList();
+                    
+                    // Clear input after success
+                    fileInput.value = '';
+                }
+            }
+        };
+        
+        // Drag and drop
+        uploadBox.ondragover = function(e) {
+            e.preventDefault();
+        };
+        
+        uploadBox.ondrop = function(e) {
+            e.preventDefault();
+            console.log('File dropped');
+            
+            if (e.dataTransfer.files.length > 0) {
+                const file = e.dataTransfer.files[0];
+                console.log('Processing dropped file:', file.name);
+                
+                updateStatus(`Processing ${file.name}...`);
+                
+                if (file.type === 'text/plain') {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const text = e.target.result;
+                        documents.push({
+                            name: file.name,
+                            text: text
+                        });
+                        
+                        updateStatus(`✅ ${file.name} uploaded successfully!`);
+                        updateFileList();
+                    };
+                    reader.readAsText(file);
+                } else {
+                    documents.push({
+                        name: file.name,
+                        text: `File: ${file.name} (${file.size} bytes)`
+                    });
+                    
+                    updateStatus(`✅ ${file.name} uploaded successfully!`);
+                    updateFileList();
+                }
+            }
+        };
+        
+        updateStatus('Ready - click the upload box to test');
+        console.log('Simple upload test ready');
+    </script>
+</body>
+</html>

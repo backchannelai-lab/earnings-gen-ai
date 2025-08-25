@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-8 bg-gray-50">
+    <div class="max-w-md mx-auto">
+        <h1 class="text-2xl font-bold mb-6">File Upload Test</h1>
+        
+        <div class="bg-white p-6 rounded-lg shadow">
+            <input type="file" id="fileInput" accept=".txt,.pdf" class="hidden">
+            
+            <div id="uploadBox" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer">
+                <div class="text-gray-600">
+                    <div class="text-lg mb-2">📁 Click to select file</div>
+                    <div class="text-sm">or drag and drop</div>
+                </div>
+            </div>
+            
+            <div id="status" class="mt-4 p-3 bg-gray-100 rounded text-sm"></div>
+            <div id="fileList" class="mt-4"></div>
+        </div>
+    </div>
+
+    <script>
+        class UploadTest {
+            constructor() {
+                this.documents = [];
+                this.setupUpload();
+                this.updateStatus('Ready to test upload');
+            }
+            
+            setupUpload() {
+                const fileInput = document.getElementById('fileInput');
+                const uploadBox = document.getElementById('uploadBox');
+                
+                console.log('🔍 Elements found:', {
+                    fileInput: !!fileInput,
+                    uploadBox: !!uploadBox
+                });
+                
+                if (fileInput) {
+                    fileInput.addEventListener('change', (e) => {
+                        console.log('🎯 File input change event triggered');
+                        this.handleFileUpload(e);
+                    });
+                }
+                
+                if (uploadBox) {
+                    uploadBox.addEventListener('click', () => {
+                        console.log('🎯 Upload box clicked');
+                        fileInput?.click();
+                    });
+                    
+                    uploadBox.addEventListener('dragover', (e) => e.preventDefault());
+                    uploadBox.addEventListener('drop', (e) => {
+                        console.log('🎯 File dropped');
+                        e.preventDefault();
+                        this.handleFileUpload({ target: { files: e.dataTransfer.files } });
+                    });
+                }
+            }
+            
+            async handleFileUpload(event) {
+                console.log('🚀 handleFileUpload called');
+                console.log('📁 Event target files:', event.target.files);
+                
+                const files = Array.from(event.target.files);
+                console.log('📁 Files selected:', files.length);
+                
+                if (files.length === 0) {
+                    this.updateStatus('No files selected');
+                    return;
+                }
+                
+                this.updateStatus(`Processing ${files.length} file(s)...`);
+                
+                for (const file of files) {
+                    try {
+                        console.log('🔄 Processing file:', file.name);
+                        
+                        const text = await this.extractText(file);
+                        
+                        this.documents.push({
+                            name: file.name,
+                            text: text
+                        });
+                        
+                        console.log('✅ File processed successfully:', file.name);
+                        this.updateStatus(`✅ ${file.name} uploaded successfully!`);
+                        
+                    } catch (error) {
+                        console.error('❌ Error processing file:', file.name, error);
+                        this.updateStatus(`❌ Error: ${error.message}`);
+                    }
+                }
+                
+                this.updateFileList();
+                
+                // Clear the file input
+                event.target.value = '';
+                
+                console.log('🎉 Upload process completed');
+            }
+            
+            async extractText(file) {
+                if (file.type === 'text/plain') {
+                    return await file.text();
+                } else if (file.name.endsWith('.pdf')) {
+                    return `PDF file: ${file.name} (${file.size} bytes)`;
+                }
+                return `File: ${file.name} (${file.size} bytes)`;
+            }
+            
+            updateStatus(message) {
+                const status = document.getElementById('status');
+                status.textContent = message;
+                status.className = message.includes('✅') ? 'mt-4 p-3 bg-green-100 rounded text-sm' : 
+                                  message.includes('❌') ? 'mt-4 p-3 bg-red-100 rounded text-sm' : 
+                                  'mt-4 p-3 bg-gray-100 rounded text-sm';
+            }
+            
+            updateFileList() {
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = '';
+                
+                this.documents.forEach(doc => {
+                    const docElement = document.createElement('div');
+                    docElement.className = 'p-3 bg-gray-50 rounded border mb-2';
+                    docElement.innerHTML = `
+                        <div class="font-medium">${doc.name}</div>
+                        <div class="text-sm text-gray-500">${doc.text.length} characters</div>
+                    `;
+                    fileList.appendChild(docElement);
+                });
+            }
+        }
+        
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 DOM loaded, creating UploadTest...');
+            window.uploadTest = new UploadTest();
+        });
+    </script>
+</body>
+</html>

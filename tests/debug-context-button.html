@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Context Button</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-area { 
+            margin: 20px 0; 
+            padding: 20px; 
+            border: 2px solid #ccc; 
+            border-radius: 8px;
+            min-height: 200px;
+            background: #f9f9f9;
+        }
+        .context-button {
+            position: fixed;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 10000;
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .context-button:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.5);
+        }
+        .debug-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #2196f3;
+        }
+        button { margin: 5px; padding: 10px 15px; border: none; border-radius: 4px; background: #007bff; color: white; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Debug Context Button</h1>
+    
+    <div class="debug-info">
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Select some text in the test area below</li>
+            <li>The context button should appear above the selected text</li>
+            <li>Click the context button to test functionality</li>
+        </ol>
+    </div>
+    
+    <div class="test-area" id="testEditor" contenteditable="true">
+        <p>This is a test area. Select some text here to see if the context button appears.</p>
+        <p>Try selecting different amounts of text - single words, phrases, or entire sentences.</p>
+        <p>UnitedHealth Group reported strong Q2 2025 results with revenue growth of 13% year-over-year to $92.4 billion.</p>
+    </div>
+    
+    <div class="debug-info">
+        <h3>Debug Controls:</h3>
+        <button onclick="testShowContextButton()">Test Show Context Button</button>
+        <button onclick="testHideContextButton()">Test Hide Context Button</button>
+        <button onclick="checkForContextButton()">Check if Context Button Exists</button>
+        <button onclick="clearDebugLog()">Clear Debug Log</button>
+    </div>
+    
+    <div class="debug-info">
+        <h3>Debug Log:</h3>
+        <div id="debugLog" style="background: white; padding: 10px; border-radius: 4px; max-height: 200px; overflow-y: auto;"></div>
+    </div>
+
+    <script>
+        let debugLog = [];
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}`;
+            debugLog.push(logEntry);
+            updateDebugLog();
+            console.log(logEntry);
+        }
+        
+        function updateDebugLog() {
+            const debugLogDiv = document.getElementById('debugLog');
+            if (debugLogDiv) {
+                debugLogDiv.innerHTML = debugLog.map(entry => `<div>${entry}</div>`).join('');
+                debugLogDiv.scrollTop = debugLogDiv.scrollHeight;
+            }
+        }
+        
+        function clearDebugLog() {
+            debugLog = [];
+            updateDebugLog();
+        }
+        
+        function checkForContextButton() {
+            const contextButton = document.getElementById('contextButton');
+            if (contextButton) {
+                log(`✅ Context button found at position: left=${contextButton.style.left}, top=${contextButton.style.top}`);
+                log(`✅ Context button z-index: ${window.getComputedStyle(contextButton).zIndex}`);
+                log(`✅ Context button visible: ${contextButton.offsetParent !== null}`);
+            } else {
+                log('❌ No context button found');
+            }
+        }
+        
+        function testShowContextButton() {
+            log('🧪 Testing show context button...');
+            showContextButton('Test text', 100, 100);
+        }
+        
+        function testHideContextButton() {
+            log('🧪 Testing hide context button...');
+            hideContextButton();
+        }
+        
+        // Context button functionality
+        function showContextButton(text, x, y) {
+            log(`🔍 Showing context button for text: "${text}" at position (${x}, ${y})`);
+            
+            // Remove existing context button
+            hideContextButton();
+            
+            // Create new context button
+            const contextButton = document.createElement('button');
+            contextButton.id = 'contextButton';
+            contextButton.className = 'context-button';
+            contextButton.innerHTML = '<i class="fas fa-lightbulb mr-2"></i>Get Context';
+            contextButton.style.left = x + 'px';
+            contextButton.style.top = y + 'px';
+            
+            contextButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                log('🎯 Context button clicked!');
+                analyzeContext(text);
+                hideContextButton();
+            });
+            
+            document.body.appendChild(contextButton);
+            log(`✅ Context button created and added to DOM at (${x}, ${y})`);
+            
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                log('⏰ Auto-hiding context button after 10 seconds');
+                hideContextButton();
+            }, 10000);
+        }
+        
+        function hideContextButton() {
+            const existingButton = document.getElementById('contextButton');
+            if (existingButton) {
+                log('🗑️ Hiding existing context button');
+                existingButton.remove();
+            } else {
+                log('ℹ️ No context button to hide');
+            }
+        }
+        
+        function analyzeContext(text) {
+            log(`🔍 Analyzing context for: "${text}"`);
+            // Simulate context analysis
+            setTimeout(() => {
+                log(`✅ Context analysis completed for: "${text}"`);
+                alert(`Context analysis for: "${text}"\n\nThis is a test - in the real app, this would show AI analysis.`);
+            }, 1000);
+        }
+        
+        // Initialize text selection handling
+        function initContextAnalysis() {
+            const testEditor = document.getElementById('testEditor');
+            
+            if (testEditor) {
+                testEditor.addEventListener('mouseup', (e) => {
+                    const selection = window.getSelection();
+                    const selectedText = selection.toString().trim();
+                    
+                    log(`Mouse up event, selected text: "${selectedText}"`);
+                    
+                    if (selectedText) {
+                        // User has selected text, show context button
+                        const range = selection.getRangeAt(0);
+                        const rect = range.getBoundingClientRect();
+                        const x = rect.left + rect.width/2;
+                        const y = rect.top - 10; // Position above the text
+                        
+                        log(`📍 Selection rectangle: left=${rect.left}, top=${rect.top}, width=${rect.width}, height=${rect.height}`);
+                        log(`📍 Context button position: x=${x}, y=${y}`);
+                        
+                        showContextButton(selectedText, x, y);
+                    } else {
+                        // No text selected, hide context button
+                        hideContextButton();
+                    }
+                });
+                
+                // Hide context button when clicking elsewhere
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('#contextButton') && !e.target.closest('#testEditor')) {
+                        log('🖱️ Click outside editor, hiding context button');
+                        hideContextButton();
+                    }
+                });
+                
+                log('✅ Context analysis initialized');
+            } else {
+                log('❌ Test editor not found');
+            }
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Page loaded, initializing context analysis...');
+            initContextAnalysis();
+        });
+        
+        // Make functions globally available for testing
+        window.testShowContextButton = testShowContextButton;
+        window.testHideContextButton = testHideContextButton;
+        window.checkForContextButton = checkForContextButton;
+        window.clearDebugLog = clearDebugLog;
+    </script>
+</body>
+</html>

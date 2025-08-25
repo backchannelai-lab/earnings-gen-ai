@@ -1,0 +1,16 @@
+✅ OpenAI embeddings initialized
+✅ Text splitter initialized
+✅ RAG Service initialized
+✅ System Prompt Manager initialized
+✅ Enhanced Real-time Server initialized
+🔧 Claude model: claude-sonnet-4-20250514
+⏱️ Debounce delay: 300ms
+🚀 Enhanced Real-time RAG Server running on http://localhost:8000
+🔌 WebSocket server ready for connections
+🧠 RAG Service: ✅ Embeddings
+📝 Prompt Manager: ✅ Ready
+🎯 Claude model: claude-sonnet-4-20250514
+⏱️ Debounce: 300ms
+
+🛑 Received SIGTERM, shutting down...
+✅ Server shut down successfully

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Context Analysis Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-area { 
+            border: 2px solid #ccc; 
+            padding: 20px; 
+            margin: 20px 0;
+            background: #f9f9f9;
+        }
+        .result { 
+            background: #e8f4fd; 
+            padding: 15px; 
+            margin: 15px 0; 
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .error { background: #ffe6e6; color: #cc0000; }
+        .success { background: #e6ffe6; color: #006600; }
+    </style>
+</head>
+<body>
+    <h1>Context Analysis Test</h1>
+    
+    <div class="test-area">
+        <h3>Test Text (Select any sentence below):</h3>
+        <p id="testText">
+            UnitedHealth Group reported strong Q2 2025 results with revenue growth of 13% year-over-year to $92.4 billion. 
+            The company's medical loss ratio (MLR) improved to 82.3% from 84.1% in the prior year quarter. 
+            Utilization rates remained stable at 78.2% while quality metrics showed continued improvement across all service lines. 
+            Optum Health saw significant growth in value-based care arrangements, with 2.3 million lives now covered under these models.
+        </p>
+    </div>
+    
+    <div class="test-area">
+        <h3>Selected Text:</h3>
+        <div id="selectedText" style="background: #ffffcc; padding: 10px; min-height: 20px;">No text selected</div>
+    </div>
+    
+    <div class="test-area">
+        <h3>Test Actions:</h3>
+        <button onclick="testDirectAPI()">Test Direct API Call</button>
+        <button onclick="testFrontendLogic()">Test Frontend Logic</button>
+        <button onclick="clearResults()">Clear Results</button>
+    </div>
+    
+    <div class="test-area">
+        <h3>Results:</h3>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        let selectedText = '';
+        
+        // Track text selection
+        document.getElementById('testText').addEventListener('mouseup', function() {
+            const selection = window.getSelection();
+            selectedText = selection.toString().trim();
+            document.getElementById('selectedText').textContent = selectedText || 'No text selected';
+        });
+        
+        function addResult(title, content, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${title}:</strong>\n${content}`;
+            results.appendChild(div);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function testDirectAPI() {
+            if (!selectedText) {
+                addResult('Error', 'Please select some text first', 'error');
+                return;
+            }
+            
+            addResult('Test', 'Testing direct API call...', 'info');
+            
+            try {
+                const prompt = `Analyze ONLY this specific text: "${selectedText}"
+
+Provide a focused analysis of this exact text. Do not reference any other content.`;
+
+                const response = await fetch('/api/analyze-context', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                addResult('API Response', JSON.stringify(data, null, 2), 'success');
+                
+                if (data.content && data.content[0]) {
+                    addResult('Analysis Result', data.content[0].text, 'success');
+                }
+                
+            } catch (error) {
+                addResult('API Error', error.message, 'error');
+            }
+        }
+        
+        async function testFrontendLogic() {
+            if (!selectedText) {
+                addResult('Error', 'Please select some text first', 'error');
+                return;
+            }
+            
+            addResult('Test', 'Testing frontend logic...', 'info');
+            
+            try {
+                // Simulate the exact frontend logic
+                const focusedPrompt = `Analyze ONLY the following highlighted text. Do NOT reference any other content or provide generic analysis. Focus specifically on what this text reveals:
+
+HIGHLIGHTED TEXT: "${selectedText}"
+
+Provide a focused analysis of this specific text covering:
+- What this specific text tells us about financial metrics, performance, or strategy
+- Any specific numbers, percentages, or data points mentioned
+- The business implications of this particular statement
+- Any risks or opportunities specifically mentioned in this text
+
+Keep your analysis focused ONLY on the highlighted text above.
+
+IMPORTANT: This is a context analysis request for highlighted text only. Do not provide generic analysis or reference other content.`;
+
+                addResult('Frontend Prompt', focusedPrompt, 'info');
+                
+                const response = await fetch('/api/analyze-context', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: focusedPrompt })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                addResult('Frontend API Response', JSON.stringify(data, null, 2), 'success');
+                
+                if (data.content && data.content[0]) {
+                    addResult('Frontend Analysis Result', data.content[0].text, 'success');
+                }
+                
+            } catch (error) {
+                addResult('Frontend Error', error.message, 'error');
+            }
+        }
+        
+        // Instructions
+        addResult('Instructions', '1. Select any sentence from the test text above\n2. Click "Test Direct API Call" to test the server\n3. Click "Test Frontend Logic" to test the full flow\n4. Compare the results to see where the issue is', 'info');
+    </script>
+</body>
+</html>

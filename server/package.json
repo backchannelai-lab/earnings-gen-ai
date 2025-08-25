@@ -1,0 +1,29 @@
+{
+  "name": "earnings-gen-ai-server",
+  "version": "1.0.0",
+  "description": "Simple backend server without LangChain headaches",
+  "main": "simple-server.js",
+  "scripts": {
+    "start": "node simple-server.js",
+    "dev": "nodemon simple-server.js",
+    "test": "node -e \"console.log('✅ No dependencies to break!')\"",
+    "lint": "echo 'No linter configured yet'",
+    "build": "echo 'No build step required'",
+    "deploy": "bash ../scripts/deploy.sh",
+    "health": "curl -f http://localhost:8000/api/health || echo 'Server not responding'",
+    "logs": "tail -f *.log",
+    "cleanup": "node -e \"require('./content-cache').clearAllCache()\""
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.22.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

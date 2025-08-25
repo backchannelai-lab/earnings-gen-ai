@@ -1,0 +1,5 @@
+This is a test file to check if basic text file processing is working.
+
+It contains some sample text that should be easy to process and analyze.
+
+The file should be processed without any errors and should generate context for the earnings analysis application.

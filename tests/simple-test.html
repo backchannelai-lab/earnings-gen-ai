@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Context Test</title>
+</head>
+<body>
+    <h1>Simple Context Analysis Test</h1>
+    
+    <p>Select this text: "Utilization rates remained stable at 78.2%"</p>
+    
+    <button onclick="testAPI()">Test API</button>
+    
+    <div id="result"></div>
+    
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const prompt = 'Analyze ONLY this text: "Utilization rates remained stable at 78.2%". Provide focused analysis.';
+                
+                console.log('Sending prompt:', prompt);
+                
+                const response = await fetch('/api/analyze-context', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+                
+                const data = await response.json();
+                console.log('Response:', data);
+                
+                if (data.content && data.content[0]) {
+                    resultDiv.innerHTML = '<h3>Result:</h3><pre>' + data.content[0].text + '</pre>';
+                } else {
+                    resultDiv.innerHTML = '<h3>Error:</h3><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = '<h3>Error:</h3><pre>' + error.message + '</pre>';
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

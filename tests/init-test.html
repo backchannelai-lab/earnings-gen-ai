@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Initialization Test</title>
+</head>
+<body>
+    <h1>Initialization Test</h1>
+    <div id="output"></div>
+    
+    <script type="module">
+        const output = document.getElementById('output');
+        
+        try {
+            output.innerHTML = '<p>Testing module imports...</p>';
+            
+            // Test each module import individually
+            Promise.all([
+                import('./js/modules/documentProcessor.js'),
+                import('./js/modules/contextManager.js'),
+                import('./js/modules/uiManager.js'),
+                import('./js/modules/apiHandler.js'),
+                import('./js/modules/settingsManager.js'),
+                import('./js/modules/utils.js')
+            ]).then(modules => {
+                output.innerHTML += '<p style="color: green;">✅ All modules imported successfully!</p>';
+                
+                const [documentProcessor, contextManager, uiManager, apiHandler, settingsManager, utils] = modules;
+                
+                output.innerHTML += '<p>Testing class instantiation...</p>';
+                
+                try {
+                    // Test creating instances
+                    const docProc = new documentProcessor.DocumentProcessor();
+                    output.innerHTML += '<p style="color: green;">✅ DocumentProcessor created</p>';
+                    
+                    const settings = new settingsManager.SettingsManager();
+                    output.innerHTML += '<p style="color: green;">✅ SettingsManager created</p>';
+                    
+                    const api = new apiHandler.APIHandler();
+                    output.innerHTML += '<p style="color: green;">✅ APIHandler created</p>';
+                    
+                    const context = new contextManager.ContextManager(api);
+                    output.innerHTML += '<p style="color: green;">✅ ContextManager created</p>';
+                    
+                    const ui = new uiManager.UIManager(docProc, context);
+                    output.innerHTML += '<p style="color: green;">✅ UIManager created</p>';
+                    
+                    output.innerHTML += '<p style="color: green;">✅ All classes can be instantiated!</p>';
+                    
+                } catch (error) {
+                    output.innerHTML += `<p style="color: red;">❌ Error creating instances: ${error.message}</p>`;
+                    console.error('Instance creation error:', error);
+                }
+                
+            }).catch(error => {
+                output.innerHTML += `<p style="color: red;">❌ Module import error: ${error.message}</p>`;
+                console.error('Module import error:', error);
+            });
+            
+        } catch (error) {
+            output.innerHTML += `<p style="color: red;">❌ Test error: ${error.message}</p>`;
+            console.error('Test error:', error);
+        }
+    </script>
+</body>
+</html>

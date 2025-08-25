@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Interactivity Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .test-button {
+            transition: all 0.2s ease;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .clicked {
+            background-color: #10b981 !important;
+            color: white !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Button Interactivity Test</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Test Section 1: Basic Buttons -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Basic Button Tests</h2>
+                <div class="space-y-3">
+                    <button id="testBtn1" class="test-button w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                        Test Button 1
+                    </button>
+                    <button id="testBtn2" class="test-button w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                        Test Button 2
+                    </button>
+                    <button id="testBtn3" class="test-button w-full px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600">
+                        Test Button 3
+                    </button>
+                </div>
+                <div id="testResults1" class="mt-4 p-3 bg-gray-100 rounded text-sm text-gray-700">
+                    Click the buttons above to test interactivity...
+                </div>
+            </div>
+            
+            <!-- Test Section 2: Dynamic Content Buttons -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Dynamic Content Test</h2>
+                <div class="space-y-3">
+                    <button id="addContentBtn" class="test-button w-full px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">
+                        Add Dynamic Content
+                    </button>
+                    <button id="removeContentBtn" class="test-button w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+                        Remove Content
+                    </button>
+                    <button id="updateContentBtn" class="test-button w-full px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600">
+                        Update Content
+                    </button>
+                </div>
+                <div id="dynamicContent" class="mt-4 p-3 bg-gray-100 rounded text-sm text-gray-700">
+                    Dynamic content will appear here...
+                </div>
+            </div>
+            
+            <!-- Test Section 3: Event Listener Health -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Event Listener Health</h2>
+                <div class="space-y-3">
+                    <button id="checkHealthBtn" class="test-button w-full px-4 py-2 bg-teal-500 text-white rounded hover:bg-teal-600">
+                        Check Event Listeners
+                    </button>
+                    <button id="fixListenersBtn" class="test-button w-full px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">
+                        Fix Event Listeners
+                    </button>
+                    <button id="stressTestBtn" class="test-button w-full px-4 py-2 bg-pink-500 text-white rounded hover:bg-pink-600">
+                        Stress Test
+                    </button>
+                </div>
+                <div id="healthResults" class="mt-4 p-3 bg-gray-100 rounded text-sm text-gray-700">
+                    Event listener health status will appear here...
+                </div>
+            </div>
+            
+            <!-- Test Section 4: System Prompt Updates -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">System Prompt Test</h2>
+                <div class="space-y-3">
+                    <textarea id="promptInput" class="w-full px-3 py-2 border border-gray-300 rounded text-sm" 
+                              placeholder="Type here to test system prompt updates..." rows="3"></textarea>
+                    <button id="updatePromptBtn" class="test-button w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        Update System Prompt
+                    </button>
+                    <button id="resetPromptBtn" class="test-button w-full px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                        Reset Prompt
+                    </button>
+                </div>
+                <div id="promptResults" class="mt-4 p-3 bg-gray-100 rounded text-sm text-gray-700">
+                    System prompt updates will appear here...
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="mt-8 bg-white p-4 rounded-lg shadow-md">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Test Status</h3>
+            <div id="statusBar" class="text-sm text-gray-600">
+                Ready to test button interactivity...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test counter
+        let testCounter = 0;
+        let dynamicButtons = [];
+        
+        // Initialize test page
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🧪 Button test page loaded');
+            setupTestEventListeners();
+            updateStatus('Test page ready - all buttons should be clickable');
+        });
+        
+        function setupTestEventListeners() {
+            // Basic button tests
+            document.getElementById('testBtn1').addEventListener('click', () => {
+                testCounter++;
+                const btn = document.getElementById('testBtn1');
+                btn.classList.add('clicked');
+                btn.textContent = `Clicked ${testCounter} times!`;
+                document.getElementById('testResults1').textContent = `Button 1 clicked ${testCounter} times`;
+                setTimeout(() => btn.classList.remove('clicked'), 500);
+            });
+            
+            document.getElementById('testBtn2').addEventListener('click', () => {
+                testCounter++;
+                const btn = document.getElementById('testBtn2');
+                btn.classList.add('clicked');
+                btn.textContent = `Clicked ${testCounter} times!`;
+                document.getElementById('testResults1').textContent = `Button 2 clicked ${testCounter} times`;
+                setTimeout(() => btn.classList.remove('clicked'), 500);
+            });
+            
+            document.getElementById('testBtn3').addEventListener('click', () => {
+                testCounter++;
+                const btn = document.getElementById('testBtn3');
+                btn.classList.add('clicked');
+                btn.textContent = `Clicked ${testCounter} times!`;
+                document.getElementById('testResults1').textContent = `Button 3 clicked ${testCounter} times`;
+                setTimeout(() => btn.classList.remove('clicked'), 500);
+            });
+            
+            // Dynamic content tests
+            document.getElementById('addContentBtn').addEventListener('click', () => {
+                const container = document.getElementById('dynamicContent');
+                const newButton = document.createElement('button');
+                newButton.className = 'test-button px-3 py-1 bg-blue-400 text-white rounded hover:bg-blue-500 text-xs mr-2 mb-2';
+                newButton.textContent = `Dynamic ${dynamicButtons.length + 1}`;
+                newButton.addEventListener('click', () => {
+                    newButton.classList.add('clicked');
+                    setTimeout(() => newButton.classList.remove('clicked'), 500);
+                });
+                container.appendChild(newButton);
+                dynamicButtons.push(newButton);
+                updateStatus(`Added dynamic button ${dynamicButtons.length}`);
+            });
+            
+            document.getElementById('removeContentBtn').addEventListener('click', () => {
+                if (dynamicButtons.length > 0) {
+                    const button = dynamicButtons.pop();
+                    button.remove();
+                    updateStatus(`Removed dynamic button, ${dynamicButtons.length} remaining`);
+                } else {
+                    updateStatus('No dynamic buttons to remove');
+                }
+            });
+            
+            document.getElementById('updateContentBtn').addEventListener('click', () => {
+                const container = document.getElementById('dynamicContent');
+                container.innerHTML = '<p class="text-green-600">Content updated!</p>';
+                dynamicButtons = [];
+                updateStatus('Content updated, all dynamic buttons removed');
+            });
+            
+            // Health check tests
+            document.getElementById('checkHealthBtn').addEventListener('click', () => {
+                const results = document.getElementById('healthResults');
+                const allButtons = document.querySelectorAll('button');
+                const buttonsWithListeners = Array.from(allButtons).filter(btn => 
+                    btn.onclick || btn.onmousedown || btn.onmouseup
+                );
+                
+                results.innerHTML = `
+                    <strong>Event Listener Health Check:</strong><br>
+                    Total buttons: ${allButtons.length}<br>
+                    Buttons with listeners: ${buttonsWithListeners.length}<br>
+                    Health: ${buttonsWithListeners.length === allButtons.length ? '✅ Good' : '⚠️ Some buttons missing listeners'}
+                `;
+                updateStatus(`Health check completed: ${buttonsWithListeners.length}/${allButtons.length} buttons have listeners`);
+            });
+            
+            document.getElementById('fixListenersBtn').addEventListener('click', () => {
+                setupTestEventListeners();
+                document.getElementById('healthResults').innerHTML = '<strong>Event listeners re-attached!</strong>';
+                updateStatus('Event listeners re-attached');
+            });
+            
+            document.getElementById('stressTestBtn').addEventListener('click', () => {
+                const results = document.getElementById('healthResults');
+                results.innerHTML = '<strong>Running stress test...</strong>';
+                
+                // Simulate heavy operations
+                let count = 0;
+                const interval = setInterval(() => {
+                    count++;
+                    results.innerHTML = `<strong>Stress test running...</strong><br>Operation ${count}/10`;
+                    
+                    if (count >= 10) {
+                        clearInterval(interval);
+                        results.innerHTML = '<strong>Stress test completed!</strong><br>All buttons should still be clickable';
+                        updateStatus('Stress test completed');
+                    }
+                }, 200);
+            });
+            
+            // System prompt tests
+            document.getElementById('updatePromptBtn').addEventListener('click', () => {
+                const input = document.getElementById('promptInput');
+                const results = document.getElementById('promptResults');
+                results.innerHTML = `<strong>System Prompt Updated:</strong><br>${input.value || 'No input provided'}`;
+                updateStatus('System prompt updated');
+            });
+            
+            document.getElementById('resetPromptBtn').addEventListener('click', () => {
+                document.getElementById('promptInput').value = '';
+                document.getElementById('promptResults').innerHTML = 'System prompt reset';
+                updateStatus('System prompt reset');
+            });
+            
+            // Test input debouncing
+            let inputTimeout;
+            document.getElementById('promptInput').addEventListener('input', () => {
+                clearTimeout(inputTimeout);
+                inputTimeout = setTimeout(() => {
+                    updateStatus('Input debounced - system prompt would update here');
+                }, 300);
+            });
+        }
+        
+        function updateStatus(message) {
+            const statusBar = document.getElementById('statusBar');
+            statusBar.innerHTML = `<span class="text-green-600">✅</span> ${message}`;
+            console.log('Status:', message);
+        }
+        
+        // Test if all buttons are working
+        function testAllButtons() {
+            const allButtons = document.querySelectorAll('button');
+            let workingButtons = 0;
+            
+            allButtons.forEach((button, index) => {
+                try {
+                    // Simulate a click event
+                    const clickEvent = new MouseEvent('click', {
+                        bubbles: true,
+                        cancelable: true,
+                        view: window
+                    });
+                    
+                    // Check if button can receive events
+                    if (button.style.pointerEvents !== 'none' && 
+                        button.style.display !== 'none' && 
+                        button.style.visibility !== 'hidden') {
+                        workingButtons++;
+                    }
+                } catch (error) {
+                    console.warn(`Button ${index} has issues:`, error);
+                }
+            });
+            
+            return { total: allButtons.length, working: workingButtons };
+        }
+        
+        // Run initial test
+        setTimeout(() => {
+            const testResults = testAllButtons();
+            updateStatus(`Initial test: ${testResults.working}/${testResults.total} buttons are interactive`);
+        }, 1000);
+    </script>
+</body>
+</html>

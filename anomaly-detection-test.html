@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anomaly Detection Test - EarningsGen AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .metric-card {
+            transition: all 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .anomaly-critical { border-left: 4px solid #ef4444; }
+        .anomaly-warning { border-left: 4px solid #f59e0b; }
+        .anomaly-success { border-left: 4px solid #10b981; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">🔍 Anomaly Detection System</h1>
+            <p class="text-xl text-gray-600">Testing Financial Metrics Validation & Trend Analysis</p>
+        </div>
+
+        <!-- Test Cases Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Health Insurance MLR Test Cases -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
+                    <i class="fas fa-heartbeat mr-3"></i>Health Insurance MLR Tests
+                </h2>
+                
+                <div class="space-y-4">
+                    <div class="metric-card anomaly-critical p-4 border rounded-lg">
+                        <h3 class="font-semibold text-red-700 mb-2">🚨 Critical Anomaly</h3>
+                        <p class="text-sm text-gray-700 mb-3">"The company's medical loss ratio was 2.1% for Q3, down from 83.2% in the prior year quarter."</p>
+                        <div class="text-xs text-red-600">
+                            <strong>Expected:</strong> MLR should be 75-90% for health insurers<br>
+                            <strong>Issue:</strong> 2.1% is critically low and requires immediate verification
+                        </div>
+                    </div>
+
+                    <div class="metric-card anomaly-warning p-4 border rounded-lg">
+                        <h3 class="font-semibold text-yellow-700 mb-2">⚠️ Warning Range</h3>
+                        <p class="text-sm text-gray-700 mb-3">"Our MLR improved to 95.2% this quarter, reflecting increased medical costs."</p>
+                        <div class="text-xs text-yellow-600">
+                            <strong>Expected:</strong> MLR should be 75-90% for health insurers<br>
+                            <strong>Issue:</strong> 95.2% is above normal range but within acceptable limits
+                        </div>
+                    </div>
+
+                    <div class="metric-card anomaly-success p-4 border rounded-lg">
+                        <h3 class="font-semibold text-green-700 mb-2">✅ Normal Range</h3>
+                        <p class="text-sm text-gray-700 mb-3">"Medical loss ratio was 82.1% for Q3, within our target range."</p>
+                        <div class="text-xs text-green-600">
+                            <strong>Expected:</strong> MLR should be 75-90% for health insurers<br>
+                            <strong>Status:</strong> 82.1% is within normal range
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Banking Metrics Test Cases -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                    <i class="fas fa-university mr-3"></i>Banking Metrics Tests
+                </h2>
+                
+                <div class="space-y-4">
+                    <div class="metric-card anomaly-critical p-4 border rounded-lg">
+                        <h3 class="font-semibold text-red-700 mb-2">🚨 Critical Anomaly</h3>
+                        <p class="text-sm text-gray-700 mb-3">"Efficiency ratio improved to 15.2%, down from 65.3% last quarter."</p>
+                        <div class="text-xs text-red-600">
+                            <strong>Expected:</strong> Efficiency ratio should be 50-70% for banks<br>
+                            <strong>Issue:</strong> 15.2% is critically low and requires verification
+                        </div>
+                    </div>
+
+                    <div class="metric-card anomaly-warning p-4 border rounded-lg">
+                        <h3 class="font-semibold text-yellow-700 mb-2">⚠️ Warning Range</h3>
+                        <p class="text-sm text-gray-700 mb-3">"Net interest margin expanded to 5.2% from 4.1% in the prior period."</p>
+                        <div class="text-xs text-yellow-600">
+                            <strong>Expected:</strong> Net interest margin should be 2.5-4.5% for banks<br>
+                            <strong>Issue:</strong> 5.2% is above normal range but within acceptable limits
+                        </div>
+                    </div>
+
+                    <div class="metric-card anomaly-success p-4 border rounded-lg">
+                        <h3 class="font-semibold text-green-700 mb-2">✅ Normal Range</h3>
+                        <p class="text-sm text-gray-700 mb-3">"Efficiency ratio was 58.3% for the quarter, in line with industry standards."</p>
+                        <div class="text-xs text-green-600">
+                            <strong>Expected:</strong> Efficiency ratio should be 50-70% for banks<br>
+                            <strong>Status:</strong> 58.3% is within normal range
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trend Analysis Examples -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-purple-800 mb-4 flex items-center">
+                <i class="fas fa-chart-line mr-3"></i>Trend Analysis Examples
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="metric-card p-4 border rounded-lg border-orange-200 bg-orange-50">
+                    <h3 class="font-semibold text-orange-800 mb-2">🔍 Dramatic Change</h3>
+                    <p class="text-sm text-gray-700 mb-3">MLR: 2.1% → 182.1%</p>
+                    <div class="text-xs text-orange-600">
+                        <strong>Change:</strong> +180 percentage points<br>
+                        <strong>Magnitude:</strong> Dramatic (requires immediate verification)<br>
+                        <strong>Action:</strong> Cross-check with source documents
+                    </div>
+                </div>
+
+                <div class="metric-card p-4 border rounded-lg border-yellow-200 bg-yellow-50">
+                    <h3 class="font-semibold text-yellow-800 mb-2">⚠️ Significant Change</h3>
+                    <p class="text-sm text-gray-700 mb-3">MLR: 82.1% → 95.2%</p>
+                    <div class="text-xs text-yellow-600">
+                        <strong>Change:</strong> +13.1 percentage points<br>
+                        <strong>Magnitude:</strong> Significant (may require explanation)<br>
+                        <strong>Action:</strong> Review for business justification
+                    </div>
+                </div>
+
+                <div class="metric-card p-4 border rounded-lg border-green-200 bg-green-50">
+                    <h3 class="font-semibold text-green-800 mb-2">✅ Moderate Change</h3>
+                    <p class="text-sm text-gray-700 mb-3">MLR: 83.2% → 82.1%</p>
+                    <div class="text-xs text-green-600">
+                        <strong>Change:</strong> -1.1 percentage points<br>
+                        <strong>Magnitude:</strong> Moderate (within expected range)<br>
+                        <strong>Action:</strong> Monitor for trends
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Test Section -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-indigo-800 mb-4 flex items-center">
+                <i class="fas fa-play-circle mr-3"></i>Interactive Testing
+            </h2>
+            
+            <div class="space-y-4">
+                <div class="flex space-x-4">
+                    <input type="text" id="testInput" placeholder="Enter text with financial metrics to test..." 
+                           class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
+                    <button onclick="testAnomalyDetection()" 
+                            class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+                        Test Detection
+                    </button>
+                </div>
+                
+                <div class="text-sm text-gray-600">
+                    <strong>Example inputs:</strong><br>
+                    • "MLR improved to 2.1% this quarter"<br>
+                    • "Efficiency ratio was 15.2% for Q3"<br>
+                    • "Revenue growth accelerated to 45.3% year-over-year"
+                </div>
+            </div>
+        </div>
+
+        <!-- System Features -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mt-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-cogs mr-3"></i>System Features
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-3">🔍 Anomaly Detection</h3>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li>• Industry-specific validation rules</li>
+                        <li>• Range checking (normal, warning, critical)</li>
+                        <li>• Automatic metric identification</li>
+                        <li>• Context-aware analysis</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-3">📊 Trend Analysis</h3>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li>• Historical baseline establishment</li>
+                        <li>• Change magnitude categorization</li>
+                        <li>• Quarter-over-quarter tracking</li>
+                        <li>• Verification requirement flags</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-3">🏭 Industry Support</h3>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li>• Health Insurance (MLR, Efficiency Ratio)</li>
+                        <li>• Banking (Efficiency Ratio, Net Interest Margin)</li>
+                        <li>• General (Revenue Growth, EBITDA Margin)</li>
+                        <li>• Extensible rule system</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-3">💾 Data Management</h3>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li>• Local storage of historical baselines</li>
+                        <li>• Export/import capabilities</li>
+                        <li>• Persistent learning across sessions</li>
+                        <li>• Cross-document consistency validation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function testAnomalyDetection() {
+            const input = document.getElementById('testInput').value.trim();
+            if (!input) {
+                alert('Please enter some text to test.');
+                return;
+            }
+            
+            // Simulate anomaly detection analysis
+            const analysis = analyzeText(input);
+            displayResults(analysis);
+        }
+        
+        function analyzeText(text) {
+            // This is a simplified simulation - the real system uses the AnomalyDetectionService
+            const lowerText = text.toLowerCase();
+            const results = {
+                text: text,
+                metrics: [],
+                anomalies: [],
+                warnings: [],
+                trends: []
+            };
+            
+            // Extract MLR if present
+            const mlrMatch = text.match(/(\d+\.?\d*)%/);
+            if (mlrMatch && lowerText.includes('mlr') || lowerText.includes('medical loss ratio')) {
+                const value = parseFloat(mlrMatch[1]);
+                const metric = {
+                    type: 'MLR',
+                    value: value,
+                    validation: validateMLR(value),
+                    trend: analyzeMLRTrend(value)
+                };
+                results.metrics.push(metric);
+                
+                if (metric.validation.severity === 'critical') {
+                    results.anomalies.push(metric);
+                } else if (metric.validation.severity === 'warning') {
+                    results.warnings.push(metric);
+                }
+                
+                if (metric.trend.requiresVerification) {
+                    results.trends.push(metric);
+                }
+            }
+            
+            return results;
+        }
+        
+        function validateMLR(value) {
+            if (value >= 75 && value <= 90) {
+                return { severity: 'success', message: `✅ MLR of ${value}% is within normal range (75-90%)` };
+            } else if (value >= 70 && value <= 95) {
+                return { severity: 'warning', message: `⚠️ MLR of ${value}% is outside normal range but within acceptable limits` };
+            } else {
+                return { severity: 'critical', message: `🚨 MLR of ${value}% is significantly outside expected range` };
+            }
+        }
+        
+        function analyzeMLRTrend(value) {
+            // Simulate trend analysis
+            if (value < 10 || value > 150) {
+                return { 
+                    requiresVerification: true, 
+                    message: `🔍 DRAMATIC CHANGE: This MLR requires immediate verification` 
+                };
+            } else if (value < 20 || value > 120) {
+                return { 
+                    requiresVerification: true, 
+                    message: `⚠️ SIGNIFICANT CHANGE: This change may require additional explanation` 
+                };
+            } else {
+                return { 
+                    requiresVerification: false, 
+                    message: `Change appears within expected parameters` 
+                };
+            }
+        }
+        
+        function displayResults(analysis) {
+            let message = `Analysis Results for: "${analysis.text}"\n\n`;
+            
+            if (analysis.metrics.length > 0) {
+                message += `📊 Metrics Found: ${analysis.metrics.length}\n`;
+                analysis.metrics.forEach(metric => {
+                    message += `• ${metric.type}: ${metric.value}% - ${metric.validation.message}\n`;
+                    if (metric.trend.requiresVerification) {
+                        message += `  ${metric.trend.message}\n`;
+                    }
+                });
+            }
+            
+            if (analysis.anomalies.length > 0) {
+                message += `\n🚨 Critical Anomalies: ${analysis.anomalies.length}`;
+            }
+            
+            if (analysis.warnings.length > 0) {
+                message += `\n⚠️ Warnings: ${analysis.warnings.length}`;
+            }
+            
+            if (analysis.trends.length > 0) {
+                message += `\n🔍 Trends Requiring Verification: ${analysis.trends.length}`;
+            }
+            
+            alert(message);
+        }
+    </script>
+</body>
+</html>

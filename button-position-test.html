@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Position Test</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="flex h-screen bg-gray-50">
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col bg-white">
+            <!-- Editor Content -->
+            <div class="flex-1 px-20 py-12">
+                <!-- Title Input -->
+                <div class="mb-12">
+                    <input type="text" id="articleTitle" placeholder="Untitled" class="w-full text-6xl font-bold text-slate-900 border-none outline-none bg-transparent placeholder-slate-300 focus:placeholder-slate-200 transition-all duration-300" value="Earnings Analysis">
+                </div>
+                
+                <!-- Main Editor -->
+                <div>
+                    <div id="articleEditor" contenteditable="true" class="min-h-[600px] p-0 border-none outline-none text-slate-700 leading-relaxed text-lg" 
+                         data-placeholder="Type '/' for commands or start writing...">
+                        <p>UnitedHealth Group reported strong Q2 2025 results with revenue growth of 13% year-over-year to $92.4 billion.</p>
+                        <p>The company's medical loss ratio improved to 82.1%, down from 83.2% in the prior year quarter, reflecting better cost management and operational efficiency.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Collapse Toggle Button - Optimally positioned for usability and visual harmony -->
+        <div class="sidebar-toggle-container">
+            <button id="sidebarToggleBtn" class="sidebar-toggle-btn" title="Toggle sidebar (Ctrl+B)">
+                <div class="toggle-btn-inner">
+                    <i id="sidebarToggleIcon" class="fas fa-chevron-left"></i>
+                </div>
+            </button>
+        </div>
+
+        <!-- Floating restore button when sidebar is collapsed -->
+        <button id="sidebarRestoreBtn" class="sidebar-restore-btn" title="Restore sidebar">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <!-- Right Sidebar - Context and Memory Only -->
+        <aside id="contextPanel" class="w-[500px] bg-white/95 backdrop-blur-sm border-l border-slate-200/50 flex flex-col shadow-2xl transition-all duration-300 ease-in-out" data-collapsed="false">
+            
+            <!-- Tab Headers -->
+            <div class="tab-headers flex border-b border-slate-200/50 bg-gradient-to-r from-slate-50 to-blue-50/30">
+                <button id="contextTabHeader" class="flex-1 px-6 py-4 text-sm font-semibold text-blue-700 border-b-2 border-blue-500 bg-blue-50/80 backdrop-blur-sm" tabindex="-1">
+                    <i class="fas fa-lightbulb mr-2 text-blue-600"></i>Context
+                </button>
+                <button id="knowledgeTabHeader" class="flex-1 px-6 py-4 text-sm font-medium text-slate-600 hover:text-slate-800 border-b-2 border-transparent hover:border-slate-300 transition-all duration-300 hover:bg-slate-50/50" tabindex="-1">
+                    <i class="fas fa-brain mr-2"></i>Memory
+                </button>
+                <button id="draftsTabHeader" class="flex-1 px-6 py-4 text-sm font-medium text-slate-600 hover:text-slate-800 border-b-2 border-transparent hover:border-slate-300 transition-all duration-300 hover:bg-slate-50/50" tabindex="-1">
+                    <i class="fas fa-file-alt mr-2"></i>Drafts
+                </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content flex-1 overflow-y-auto">
+                <!-- Context Tab -->
+                <div id="contextContent" class="p-6">
+                    <div class="text-center py-8 text-slate-600">
+                        <p class="text-sm text-slate-600 mb-6">Button Position Test</p>
+                        <div class="border border-slate-200 rounded-lg p-6 text-left bg-slate-50">
+                            <p class="text-sm font-semibold text-slate-800 mb-3">Button should be at top: 48px from viewport top</p>
+                            <p class="text-sm text-slate-700">The blue button should be positioned at the same level as the "Earnings Analysis" title above.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+            // Simple test script
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleBtn = document.getElementById('sidebarToggleBtn');
+        const contextPanel = document.getElementById('contextPanel');
+        const restoreBtn = document.getElementById('sidebarRestoreBtn');
+        
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function() {
+                const isCollapsed = contextPanel.getAttribute('data-collapsed') === 'true';
+                
+                if (isCollapsed) {
+                    // Expand
+                    contextPanel.setAttribute('data-collapsed', 'false');
+                    contextPanel.style.width = '500px';
+                    document.getElementById('sidebarToggleIcon').className = 'fas fa-chevron-left';
+                    restoreBtn.classList.remove('show');
+                    console.log('🔽 Sidebar expanded');
+                } else {
+                    // Collapse
+                    contextPanel.setAttribute('data-collapsed', 'true');
+                    contextPanel.style.width = '0';
+                    document.getElementById('sidebarToggleIcon').className = 'fas fa-chevron-right';
+                    restoreBtn.classList.add('show');
+                    console.log('🔼 Sidebar collapsed');
+                }
+            });
+            
+            // Restore button functionality
+            if (restoreBtn) {
+                restoreBtn.addEventListener('click', function() {
+                    contextPanel.setAttribute('data-collapsed', 'false');
+                    contextPanel.style.width = '500px';
+                    document.getElementById('sidebarToggleIcon').className = 'fas fa-chevron-left';
+                    restoreBtn.classList.remove('show');
+                    console.log('🔽 Sidebar restored');
+                });
+            }
+            
+            console.log('✅ Button position test initialized');
+            console.log('Button should be positioned at top right of sidebar');
+        }
+    });
+    </script>
+</body>
+</html>

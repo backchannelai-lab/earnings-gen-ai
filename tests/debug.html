@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Processing Debug</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+</head>
+<body>
+    <h1>File Processing Debug</h1>
+    
+    <div>
+        <h2>Test File Upload</h2>
+        <input type="file" id="testFileInput" accept=".txt,.pdf,.xlsx,.xls">
+        <button onclick="testFileProcessing()">Test File Processing</button>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script type="module">
+        import { DocumentProcessor } from './js/modules/documentProcessor.js';
+        
+        window.testFileProcessing = async function() {
+            const fileInput = document.getElementById('testFileInput');
+            const resultsDiv = document.getElementById('results');
+            
+            if (!fileInput.files.length) {
+                resultsDiv.innerHTML = '<p style="color: red;">Please select a file first</p>';
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            resultsDiv.innerHTML = `<p>Testing file: ${file.name} (${file.type}, ${file.size} bytes)</p>`;
+            
+            try {
+                const processor = new DocumentProcessor();
+                console.log('DocumentProcessor created successfully');
+                
+                const result = await processor.processDocument(file);
+                console.log('File processed successfully:', result);
+                
+                resultsDiv.innerHTML += `
+                    <p style="color: green;">✅ File processed successfully!</p>
+                    <p><strong>Name:</strong> ${result.name}</p>
+                    <p><strong>Text Length:</strong> ${result.text.length} characters</p>
+                    <p><strong>Analysis:</strong> ${JSON.stringify(result.analysis, null, 2)}</p>
+                `;
+                
+            } catch (error) {
+                console.error('Error processing file:', error);
+                resultsDiv.innerHTML += `
+                    <p style="color: red;">❌ Error processing file: ${error.message}</p>
+                    <p><strong>Stack:</strong> ${error.stack}</p>
+                `;
+            }
+        };
+    </script>
+</body>
+</html>

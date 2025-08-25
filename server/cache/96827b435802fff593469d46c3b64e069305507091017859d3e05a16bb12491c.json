@@ -1,0 +1,10 @@
+{
+  "content": "Hi! How can I help you today?",
+  "metadata": {
+    "processingMethod": "direct-context-analysis",
+    "originalLength": 5,
+    "query": "hello",
+    "timestamp": 1755721092585,
+    "expiresAt": 1755807492585
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "userLimits": {
+    "default": {
+      "tier": "regular",
+      "requests": 1,
+      "lastRequest": 1755960809274,
+      "successCount": 169,
+      "errorCount": 8,
+      "upgradeEligible": false
+    }
+  },
+  "apiHealth": {
+    "successRate": 1,
+    "errorCount": 0,
+    "totalRequests": 0,
+    "lastReset": 1755960809274
+  },
+  "timestamp": 1755960809274
+}

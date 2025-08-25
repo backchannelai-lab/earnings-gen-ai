@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Formatting Test</title>
+    <style>
+        .test-content {
+            white-space: pre-line;
+            font-family: monospace;
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin: 20px;
+            background: #f9f9f9;
+        }
+        .bullet-point {
+            margin: 10px 0;
+        }
+        .bullet-text {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Formatting Test</h1>
+    
+    <h2>Test 1: Raw Text with \n</h2>
+    <div class="test-content" id="test1"></div>
+    
+    <h2>Test 2: HTML with &lt;br&gt;</h2>
+    <div class="test-content" id="test2"></div>
+    
+    <h2>Test 3: CSS white-space: pre-line</h2>
+    <div class="test-content" id="test3"></div>
+    
+    <h2>Test 4: Manual HTML Structure</h2>
+    <div class="test-content" id="test4"></div>
+    
+    <script>
+        // Test 1: Raw text with \n
+        const rawText = `Key Metrics:
+• 
+  Utilization rate: 78.2% (stable performance)
+
+Business Insights:
+• 
+  Quality metrics showing continued improvement
+• 
+  Stable utilization indicates operational efficiency`;
+        
+        document.getElementById('test1').textContent = rawText;
+        
+        // Test 2: HTML with <br>
+        const formattedContent = rawText
+            .replace(/\n/g, '<br>')
+            .replace(/\s{2,}/g, '&nbsp;&nbsp;');
+        
+        document.getElementById('test2').innerHTML = formattedContent;
+        
+        // Test 3: CSS white-space: pre-line
+        document.getElementById('test3').textContent = rawText;
+        
+        // Test 4: Manual HTML structure
+        document.getElementById('test4').innerHTML = `
+            <div class="bullet-point">
+                <strong>Key Metrics:</strong>
+            </div>
+            <div class="bullet-point">
+                • 
+                <div class="bullet-text">Utilization rate: 78.2% (stable performance)</div>
+            </div>
+            <div class="bullet-point">
+                <strong>Business Insights:</strong>
+            </div>
+            <div class="bullet-point">
+                • 
+                <div class="bullet-text">Quality metrics showing continued improvement</div>
+            </div>
+            <div class="bullet-point">
+                • 
+                <div class="bullet-text">Stable utilization indicates operational efficiency</div>
+            </div>
+        `;
+    </script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Persistence Test - Fixed</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { margin: 5px; padding: 10px 15px; border: none; border-radius: 4px; background: #007bff; color: white; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .file-list { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Document Persistence Test - Fixed Version</h1>
+    
+    <div class="test-section">
+        <h3>Test DocumentProcessor localStorage Persistence</h3>
+        <button onclick="testDocumentProcessor()">Test DocumentProcessor</button>
+        <button onclick="addTestDocument()">Add Test Document</button>
+        <button onclick="clearDocuments()">Clear All Documents</button>
+        <button onclick="checkLocalStorage()">Check localStorage</button>
+        <div id="results"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Current Documents</h3>
+        <div id="fileList" class="file-list">
+            <p>No documents loaded yet</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { DocumentProcessor } from './js/modules/documentProcessor.js';
+        
+        let documentProcessor;
+        
+        // Initialize DocumentProcessor
+        function initDocumentProcessor() {
+            try {
+                documentProcessor = new DocumentProcessor();
+                showResult('✅ DocumentProcessor initialized successfully', true);
+                updateFileList();
+            } catch (error) {
+                showResult(`❌ Error initializing DocumentProcessor: ${error.message}`, false);
+            }
+        }
+        
+        // Test basic functionality
+        function testDocumentProcessor() {
+            try {
+                if (!documentProcessor) {
+                    showResult('❌ DocumentProcessor not initialized', false);
+                    return;
+                }
+                
+                const docCount = documentProcessor.getDocumentCount();
+                const hasDocs = documentProcessor.hasDocuments();
+                
+                showResult(`✅ DocumentProcessor test successful:
+                - Document count: ${docCount}
+                - Has documents: ${hasDocs}`, true);
+                
+            } catch (error) {
+                showResult(`❌ DocumentProcessor test failed: ${error.message}`, false);
+            }
+        }
+        
+        // Add a test document
+        function addTestDocument() {
+            try {
+                if (!documentProcessor) {
+                    showResult('❌ DocumentProcessor not initialized', false);
+                    return;
+                }
+                
+                const testDoc = {
+                    name: `Test Document ${Date.now()}`,
+                    text: 'This is a test document to verify localStorage persistence.',
+                    size: 1024,
+                    type: 'text/plain',
+                    lastModified: Date.now()
+                };
+                
+                documentProcessor.addDocument(testDoc);
+                showResult(`✅ Test document added: ${testDoc.name}`, true);
+                updateFileList();
+                
+            } catch (error) {
+                showResult(`❌ Error adding test document: ${error.message}`, false);
+            }
+        }
+        
+        // Clear all documents
+        function clearDocuments() {
+            try {
+                if (!documentProcessor) {
+                    showResult('❌ DocumentProcessor not initialized', false);
+                    return;
+                }
+                
+                documentProcessor.clearDocuments();
+                showResult('✅ All documents cleared', true);
+                updateFileList();
+                
+            } catch (error) {
+                showResult(`❌ Error clearing documents: ${error.message}`, false);
+            }
+        }
+        
+        // Update file list display
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            if (!fileList) return;
+            
+            try {
+                if (!documentProcessor) {
+                    fileList.innerHTML = '<p>DocumentProcessor not initialized</p>';
+                    return;
+                }
+                
+                const documents = documentProcessor.getDocuments();
+                
+                if (documents.length === 0) {
+                    fileList.innerHTML = '<p>No documents loaded</p>';
+                } else {
+                    fileList.innerHTML = documents.map((doc, index) => `
+                        <div style="margin: 10px 0; padding: 10px; background: white; border-radius: 4px; border: 1px solid #ddd;">
+                            <strong>${doc.name}</strong><br>
+                            <small>Size: ${doc.size || 'Unknown'} bytes | Type: ${doc.type || 'Unknown'}</small><br>
+                            <small>Text length: ${doc.text ? doc.text.length : 'No text'}</small>
+                        </div>
+                    `).join('');
+                }
+                
+            } catch (error) {
+                fileList.innerHTML = `<p style="color: red;">Error updating file list: ${error.message}</p>`;
+            }
+        }
+        
+        // Check localStorage contents
+        function checkLocalStorage() {
+            try {
+                const keys = Object.keys(localStorage);
+                let message = `📋 Total localStorage keys: ${keys.length}\n`;
+                
+                keys.forEach(key => {
+                    if (key.includes('earningsGenAI')) {
+                        const value = localStorage.getItem(key);
+                        message += `\n🔑 Key: ${key}\n`;
+                        message += `📄 Value preview: ${value ? value.substring(0, 200) + '...' : 'null'}\n`;
+                    }
+                });
+                
+                showResult(message, true);
+                
+            } catch (error) {
+                showResult(`❌ Error checking localStorage: ${error.message}`, false);
+            }
+        }
+        
+        // Show test results
+        function showResult(message, isSuccess = true) {
+            const results = document.getElementById('results');
+            if (results) {
+                const div = document.createElement('div');
+                div.className = isSuccess ? 'success' : 'error';
+                div.style.marginTop = '10px';
+                div.style.padding = '10px';
+                div.style.borderRadius = '4px';
+                div.innerHTML = `<pre style="margin: 0; white-space: pre-wrap;">${message}</pre>`;
+                results.appendChild(div);
+                
+                // Auto-remove after 10 seconds
+                setTimeout(() => div.remove(), 10000);
+            }
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            initDocumentProcessor();
+        });
+        
+        // Make functions globally available
+        window.testDocumentProcessor = testDocumentProcessor;
+        window.addTestDocument = addTestDocument;
+        window.clearDocuments = clearDocuments;
+        window.checkLocalStorage = checkLocalStorage;
+    </script>
+</body>
+</html>

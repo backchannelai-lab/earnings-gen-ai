@@ -1,0 +1,130 @@
+/* Essential styles for the sidebar toggle button */
+.sidebar-toggle-container {
+    position: fixed !important;
+    top: 50% !important;
+    right: 560px !important;
+    transform: translateY(-50%) !important;
+    z-index: 9999 !important;
+}
+
+.sidebar-toggle-btn {
+    width: 48px !important;
+    height: 48px !important;
+    background: transparent !important;
+    border: 2px solid #94a3b8 !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.toggle-btn-inner {
+    color: #64748b !important;
+    font-size: 18px !important;
+}
+
+/* When sidebar is collapsed */
+#contextPanel[data-collapsed="true"] ~ .sidebar-toggle-container {
+    right: 24px !important;
+}
+
+/* Hide any other buttons that might be interfering */
+.sidebar-restore-btn {
+    display: none !important;
+}
+
+/* Basic page layout */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.flex {
+    display: flex;
+}
+
+.h-screen {
+    height: 100vh;
+}
+
+.bg-gray-50 {
+    background-color: #f9fafb;
+}
+
+.w-20 {
+    width: 5rem;
+}
+
+.bg-white {
+    background-color: white;
+}
+
+.border-r {
+    border-right-width: 1px;
+}
+
+.border-gray-200 {
+    border-color: #e5e7eb;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.py-4 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.space-y-4 > * + * {
+    margin-top: 1rem;
+}
+
+.flex-1 {
+    flex: 1 1 0%;
+}
+
+.bg-white\/95 {
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+.backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+}
+
+.border-l {
+    border-left-width: 1px;
+}
+
+.border-slate-200\/50 {
+    border-color: rgba(226, 232, 240, 0.5);
+}
+
+.shadow-2xl {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+}
+
+.duration-300 {
+    transition-duration: 300ms;
+}
+
+.ease-in-out {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.w-\[500px\] {
+    width: 500px;
+}

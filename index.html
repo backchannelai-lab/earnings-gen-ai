@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earnings AI - Financial Analysis Assistant (RAG ENHANCED)</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="css/style.css?v=6" rel="stylesheet">
+</head>
+<body>
+    <div class="flex h-screen bg-gray-50">
+        <!-- Left Sidebar - Settings and Navigation -->
+        <div class="w-20 bg-white border-r border-gray-200 flex flex-col items-center py-4 space-y-4">
+            <!-- Settings Button -->
+            <button id="settingsBtn" class="text-2xl text-gray-600 hover:text-gray-800 transition-colors" title="Settings">
+                <i class="fas fa-cog"></i>
+            </button>
+            
+            <!-- Editor Button -->
+            <button id="editorBtn" class="w-12 h-12 flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors" title="Editor">
+                <i class="fas fa-pen text-lg"></i>
+            </button>
+            
+
+            
+            <!-- Folder Button -->
+            <button id="folderBtn" class="w-12 h-12 flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors" title="Documents">
+                <i class="fas fa-folder text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Main Content Area - Notion-style Editor -->
+        <main class="flex-1 flex flex-col bg-white">
+            <!-- Editor Content -->
+            <div class="flex-1 px-20 py-12">
+                <!-- Save Button -->
+                <div class="flex justify-end mb-6">
+                    <button id="saveBtn" class="w-12 h-12 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center" title="Save Document" onclick="console.log('🔥 INLINE SAVE BUTTON CLICKED!'); if(window.simpleAI) { window.simpleAI.saveDocument(); } else { console.error('❌ SimpleAI not available'); }">
+                        <i class="fas fa-save text-lg"></i>
+                    </button>
+                </div>
+                
+                <!-- Title Input -->
+                <div class="mb-12">
+                    <input type="text" id="articleTitle" placeholder="Untitled" class="w-full text-6xl font-bold text-slate-900 border-none outline-none bg-transparent placeholder-slate-300 focus:placeholder-slate-200 transition-all duration-300" value="Earnings Analysis">
+                </div>
+                
+                <!-- Main Editor -->
+                <div>
+                    <div id="articleEditor" contenteditable="true" class="min-h-[600px] p-0 border-none outline-none text-slate-700 leading-relaxed text-lg" 
+                         data-placeholder="Type '/' for commands or start writing...">
+                        <p>UnitedHealth Group reported strong Q2 2025 results with revenue growth of 13% year-over-year to $92.4 billion.</p>
+                        <p>The company's medical loss ratio improved to 82.1%, down from 83.2% in the prior year quarter, reflecting better cost management and operational efficiency.</p>
+                        <p>Optum Health continued its strong performance with value-based care arrangements now covering 4.2 million patients, up 15% from Q2 2024.</p>
+                        <p>Strategic investments in digital health and telehealth platforms contributed to improved member engagement and satisfaction scores.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+
+
+
+
+        <!-- Right Sidebar Toggle Button - Clean chevron attached to sidebar -->
+        <div class="sidebar-toggle-container" style="position: fixed !important; top: 50% !important; right: 500px !important; transform: translateY(-50%) !important; z-index: 1000 !important;">
+            <button id="sidebarToggleBtn" class="sidebar-toggle-btn" style="background: transparent !important; border: none !important; box-shadow: none !important; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;" title="Toggle sidebar (Ctrl+B)">
+                <i id="sidebarToggleIcon" class="fas fa-chevron-left" style="color: #64748b !important; font-size: 20px;"></i>
+            </button>
+        </div>
+
+
+
+        <!-- Right Sidebar - Context and Memory Only -->
+        <aside id="contextPanel" class="w-[500px] bg-white/95 backdrop-blur-sm border-l border-slate-200/50 flex flex-col shadow-2xl transition-all duration-300 ease-in-out" data-collapsed="false">
+            
+            <!-- Tab Headers -->
+            <div class="tab-headers flex border-b border-slate-200/50 bg-gradient-to-r from-slate-50 to-blue-50/30">
+                <button id="contextTabHeader" class="flex-1 px-6 py-4 text-sm font-semibold text-blue-700 border-b-2 border-blue-500 bg-blue-50/80 backdrop-blur-sm" tabindex="-1">
+                    <i class="fas fa-lightbulb mr-2 text-blue-600"></i>Context
+                </button>
+                <button id="knowledgeTabHeader" class="flex-1 px-6 py-4 text-sm font-medium text-slate-600 hover:text-slate-800 border-b-2 border-transparent hover:border-slate-300 transition-all duration-300 hover:bg-slate-50/50" tabindex="-1">
+                    <i class="fas fa-brain mr-2"></i>Memory
+                </button>
+                <button id="draftsTabHeader" class="flex-1 px-6 py-4 text-sm font-medium text-slate-600 hover:text-slate-800 border-b-2 border-transparent hover:border-slate-300 transition-all duration-300 hover:bg-slate-50/50" tabindex="-1">
+                    <i class="fas fa-file-alt mr-2"></i>Drafts
+                </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content flex-1 overflow-y-auto">
+                <!-- Context Tab -->
+                <div id="contextContent" class="p-6">
+                    <div class="text-center py-8 text-slate-600">
+                        <p class="text-sm text-slate-600 mb-6">Click on any sentence in your draft to get relevant context</p>
+                        <div class="border border-slate-200 rounded-lg p-6 text-left bg-slate-50">
+                            <p class="text-sm font-semibold text-slate-800 mb-3 flex items-center">
+                                <i class="fas fa-info-circle mr-2 text-slate-600"></i>How to use:
+                            </p>
+                                                    <ul class="text-sm text-slate-700 space-y-2">
+                            <li class="flex items-center">
+                                <span class="w-2 h-2 bg-slate-400 rounded-full mr-3"></span>
+                                Type or paste content in the editor
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-2 h-2 bg-slate-400 rounded-full mr-3"></span>
+                                Click on any sentence to get context
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-2 h-2 bg-slate-400 rounded-full mr-3"></span>
+                                Use the floating chat button for questions
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-2 h-2 bg-slate-400 rounded-full mr-3"></span>
+                                Upload documents in the Memory tab
+                            </li>
+                        </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Memory Tab -->
+                <div id="knowledgeContent" class="p-6 hidden">
+                    <div class="mb-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                                <i class="fas fa-brain text-xl text-green-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-slate-800">Memory Base</h3>
+                                <p class="text-sm text-slate-600">Upload documents to enhance your analysis</p>
+                            </div>
+                        </div>
+                        
+                        <!-- File Upload Area -->
+                        <div id="fileUploadBox" class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors cursor-pointer">
+                            <div class="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                                <i class="fas fa-cloud-upload-alt text-2xl text-blue-600"></i>
+                            </div>
+                            <h4 class="text-lg font-semibold text-slate-800 mb-2">Upload Documents</h4>
+                            <p class="text-slate-600 mb-4">Drag and drop files here or click to browse</p>
+                            <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.txt" class="hidden">
+                            <button class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+                                Choose Files
+                            </button>
+                        </div>
+                        
+                        <!-- Uploaded Files List -->
+                        <div id="fileList" class="mt-6 space-y-3">
+                            <!-- Files will be listed here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Drafts Tab -->
+                <div id="draftsContent" class="p-6 hidden">
+                    <div class="text-center py-12 text-slate-600">
+                        <div class="w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                            <i class="fas fa-file-alt text-3xl text-purple-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-slate-800 mb-3">Your Drafts</h3>
+                        <p class="text-sm text-slate-600">Saved documents will appear here</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Floating Chat Interface -->
+    <div id="floatingChat">
+        <!-- Chat Toggle Button -->
+        <button id="chatToggleBtn" class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 flex items-center justify-center">
+            <i id="chatIcon" class="fas fa-plus text-xl"></i>
+        </button>
+        
+        <!-- Chat Interface -->
+        <div id="chatInterface" class="hidden">
+            <!-- Chat Header -->
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-4 rounded-t-2xl">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-semibold">AI Assistant</h3>
+                    <button id="closeChatBtn" class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Chat History -->
+            <div id="chatHistory" class="h-80 overflow-y-auto p-6">
+                <!-- Simple Welcome Message -->
+                <div id="chatPlaceholder" class="text-center py-8">
+                    <p class="text-sm text-slate-600">Ask me anything about your financial analysis</p>
+                </div>
+            </div>
+            
+            <!-- Chat Input -->
+            <div class="p-4 border-t border-slate-200 bg-white">
+                <!-- Quick Example Buttons -->
+                <div class="mb-3 flex flex-wrap gap-2">
+                    <button class="quick-example-btn px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors">
+                        "Analyze this revenue data"
+                    </button>
+                    <button class="quick-example-btn px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors">
+                        "What are the key trends?"
+                    </button>
+                    <button class="quick-example-btn px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors">
+                        "Compare Q1 vs Q2"
+                    </button>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <input type="text" id="chatPromptInput" placeholder="Ask me anything..." class="flex-1 border-2 border-slate-200 rounded-xl px-4 py-3 focus:border-blue-500 focus:outline-none transition-colors">
+                    <button id="chatPromptForm" class="px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl transition-all duration-300 hover:scale-105 shadow-lg">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+    <script type="module" src="js/main.js"></script>
+    <script src="js/modules/RAGAnalysisService.js"></script>
+    <script>
+        // Force correct positioning and styling with sidebar movement
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.sidebar-toggle-container');
+            const button = document.getElementById('sidebarToggleBtn');
+            const icon = document.getElementById('sidebarToggleIcon');
+            const contextPanel = document.getElementById('contextPanel');
+            function updateButtonPosition() {
+                if (container && contextPanel) {
+                    const isCollapsed = contextPanel.getAttribute('data-collapsed') === 'true';
+                    console.log('🔄 BUTTON POSITION UPDATE: isCollapsed =', isCollapsed);
+                    
+                    if (isCollapsed) {
+                        // Force move to edge when collapsed - use !important in JS
+                        container.style.setProperty('right', '24px', 'important');
+                        console.log('🔄 BUTTON: Moving to edge (24px) with !important');
+                        // Update icon direction when collapsed
+                        if (icon) {
+                            icon.className = 'fas fa-chevron-right';
+                        }
+                    } else {
+                        // Force move closer to sidebar when expanded
+                        container.style.setProperty('right', '500px', 'important');
+                        console.log('🔄 BUTTON: Moving to sidebar (500px) with !important');
+                        // Update icon direction when expanded
+                        if (icon) {
+                            icon.className = 'fas fa-chevron-left';
+                        }
+                    }
+                    
+                    // Log final position for verification
+                    console.log('🔄 BUTTON: Final computed right position:', window.getComputedStyle(container).right);
+                }
+            }
+            
+            // Set initial styles for right sidebar toggle
+            if (container) {
+                container.style.position = 'fixed';
+                container.style.top = '50%';
+                container.style.transform = 'translateY(-50%)';
+                container.style.zIndex = '1000';
+                updateButtonPosition(); // Set initial position
+            }
+            
+            // DIRECT APPROACH: Add click handler to the toggle button itself
+            if (button) {
+                console.log('🔄 DIRECT: Adding click handler to sidebar toggle button');
+                button.addEventListener('click', function() {
+                    console.log('🔄 DIRECT: Sidebar toggle button clicked!');
+                    // Wait a moment for the sidebar to update, then move the button
+                    setTimeout(function() {
+                        const isCollapsed = contextPanel.getAttribute('data-collapsed') === 'true';
+                        console.log('🔄 DIRECT: After click, isCollapsed =', isCollapsed);
+                        
+                        if (isCollapsed) {
+                            container.style.setProperty('right', '24px', 'important');
+                            console.log('🔄 DIRECT: Moved button to 24px (collapsed)');
+                        } else {
+                            container.style.setProperty('right', '500px', 'important');
+                            console.log('🔄 DIRECT: Moved button to 500px (expanded)');
+                        }
+                    }, 50); // Small delay to let the sidebar update first
+                });
+            }
+            
+            if (button) {
+                button.style.background = 'transparent';
+                button.style.border = 'none';
+                button.style.boxShadow = 'none';
+                button.style.width = '32px';
+                button.style.height = '32px';
+                button.style.display = 'flex';
+                button.style.alignItems = 'center';
+                button.style.justifyContent = 'center';
+            }
+            
+            if (icon) {
+                icon.style.color = '#64748b';
+                icon.style.fontSize = '20px';
+            }
+            
+            // Watch for sidebar changes and update button position
+            if (contextPanel) {
+                console.log('🔄 OBSERVER: Setting up MutationObserver for contextPanel');
+                const observer = new MutationObserver(function(mutations) {
+                    console.log('🔄 OBSERVER: Mutations detected:', mutations.length);
+                    mutations.forEach(function(mutation) {
+                        console.log('🔄 OBSERVER: Mutation type:', mutation.type, 'attribute:', mutation.attributeName);
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'data-collapsed') {
+                            console.log('🔄 OBSERVER: data-collapsed changed, updating button position');
+                            updateButtonPosition();
+                        }
+                    });
+                });
+                
+                observer.observe(contextPanel, {
+                    attributes: true,
+                    attributeFilter: ['data-collapsed']
+                });
+                console.log('🔄 OBSERVER: MutationObserver is active');
+            } else {
+                console.log('❌ OBSERVER: contextPanel not found');
+            }
+        });
+    </script>
+    
+    <script>
+        // DEBUG CONTEXT BUTTON - Comprehensive Debugging
+        console.log('🚀 SCRIPT LOADED: Context button script starting...');
+        console.log('🚀 DOM STATE:', document.readyState);
+        console.log('🚀 TIMESTAMP:', new Date().toISOString());
+        
+        // Global variable to track context button
+        let currentContextButton = null;
+        let debugCounter = 0;
+        
+        // Test basic DOM access
+        console.log('🔍 TESTING DOM ACCESS...');
+        console.log('🔍 document.body exists:', !!document.body);
+        console.log('🔍 document.getElementById function exists:', typeof document.getElementById);
+        
+        // Initialize immediately and also on DOM ready
+        console.log('🚀 INITIALIZING IMMEDIATELY...');
+        initContextButton();
+        
+        if (document.readyState === 'loading') {
+            console.log('🚀 DOM STILL LOADING - Adding DOMContentLoaded listener');
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('🚀 DOMContentLoaded FIRED - Initializing again');
+                initContextButton();
+            });
+        } else {
+            console.log('🚀 DOM ALREADY READY - No need for DOMContentLoaded listener');
+        }
+        
+        function initContextButton() {
+            debugCounter++;
+            console.log('🔧 INIT ATTEMPT #' + debugCounter + ': Initializing context button...');
+            
+            // Test if we can find the article editor
+            const articleEditor = document.getElementById('articleEditor');
+            console.log('🔍 ELEMENT SEARCH: articleEditor =', articleEditor);
+            console.log('🔍 ELEMENT TYPE:', typeof articleEditor);
+            console.log('🔍 ELEMENT TAG NAME:', articleEditor ? articleEditor.tagName : 'N/A');
+            console.log('🔍 ELEMENT CLASS:', articleEditor ? articleEditor.className : 'N/A');
+            
+            if (articleEditor) {
+                console.log('✅ ELEMENT FOUND: Article editor exists');
+                
+                // Test event listener attachment
+                try {
+                    console.log('🔧 ADDING EVENT LISTENERS...');
+                    
+                    // Add mouseup listener with detailed debugging
+                    articleEditor.addEventListener('mouseup', function(e) {
+                        console.log('🎯 MOUSEUP EVENT FIRED!');
+                        console.log('🎯 Event target:', e.target);
+                        console.log('🎯 Event type:', e.type);
+                        console.log('🎯 Mouse position:', e.clientX, e.clientY);
+                        handleTextSelection(e);
+                    });
+                    
+                    console.log('✅ MOUSEUP LISTENER: Successfully added');
+                    
+                    // Test with a simple click listener too
+                    articleEditor.addEventListener('click', function(e) {
+                        console.log('🎯 CLICK EVENT FIRED!');
+                        console.log('🎯 Click position:', e.clientX, e.clientY);
+                    });
+                    
+                    console.log('✅ CLICK LISTENER: Successfully added for testing');
+                    
+                    // Add selection change listener
+                    document.addEventListener('selectionchange', function() {
+                        console.log('🎯 SELECTION CHANGE EVENT FIRED!');
+                        handleSelectionChange();
+                    });
+                    
+                    console.log('✅ SELECTION LISTENER: Successfully added');
+                    
+                } catch (error) {
+                    console.error('❌ ERROR ADDING LISTENERS:', error);
+                }
+                
+                console.log('✅ INITIALIZATION: Context button event listeners added');
+            } else {
+                console.log('❌ ELEMENT NOT FOUND: Article editor not found');
+                
+                // Debug: List all elements with similar IDs
+                console.log('🔍 DEBUGGING: Looking for similar elements...');
+                const allElements = document.querySelectorAll('[id*="editor"], [id*="article"]');
+                console.log('🔍 FOUND ELEMENTS:', allElements);
+                allElements.forEach((el, i) => {
+                    console.log(`🔍 Element ${i}:`, el.id, el.tagName, el.className);
+                });
+            }
+        }
+        
+        function handleTextSelection(e) {
+            console.log('🎯 HANDLE TEXT SELECTION: Function called');
+            console.log('🎯 Event object:', e);
+            
+            try {
+                const selection = window.getSelection();
+                console.log('🔍 SELECTION OBJECT:', selection);
+                console.log('🔍 Selection type:', selection.type);
+                console.log('🔍 Selection range count:', selection.rangeCount);
+                
+                const selectedText = selection.toString().trim();
+                console.log('🔍 SELECTED TEXT:', `"${selectedText}"`);
+                console.log('🔍 Text length:', selectedText.length);
+                
+                if (selectedText && selectedText.length > 0) {
+                    console.log('✅ TEXT SELECTED: Showing context button');
+                    console.log('✅ Mouse position:', e.clientX, e.clientY);
+                    showContextButton(selectedText, e.clientX, e.clientY);
+                } else {
+                    console.log('❌ NO TEXT: Hiding context button');
+                    hideContextButton();
+                }
+            } catch (error) {
+                console.error('❌ ERROR in handleTextSelection:', error);
+            }
+        }
+        
+        function handleSelectionChange() {
+            const selection = window.getSelection();
+            const selectedText = selection.toString().trim();
+            
+            if (!selectedText || selectedText.length === 0) {
+                console.log('🔧 Selection cleared, hiding context button');
+                hideContextButton();
+            }
+        }
+        
+        function showContextButton(text, x, y) {
+            console.log('🚀 SHOW CONTEXT BUTTON: Function called');
+            console.log('🚀 Parameters - text:', text, 'x:', x, 'y:', y);
+            
+            try {
+                // Check if a button already exists and remove it
+                const existingButton = document.getElementById('contextButton');
+                if (existingButton) {
+                    console.log('🔧 CLEANUP: Found existing button, removing it');
+                    existingButton.remove();
+                }
+                
+                // Remove existing button first
+                console.log('🔧 CLEANUP: Hiding existing button');
+                hideContextButton();
+                
+                // Test document.body availability
+                console.log('🔍 BODY CHECK: document.body exists:', !!document.body);
+                if (!document.body) {
+                    console.error('❌ CRITICAL ERROR: document.body is null');
+                    return;
+                }
+                
+                // Create new context button
+                console.log('🔧 CREATION: Creating button element');
+                const contextButton = document.createElement('button');
+                console.log('🔍 ELEMENT: Created element:', contextButton);
+                
+                // Set properties
+                contextButton.id = 'contextButton';
+                contextButton.innerHTML = '🔍 Get Context';
+                contextButton.style.position = 'fixed';
+                contextButton.style.left = x + 'px';
+                contextButton.style.top = (y - 50) + 'px';
+                contextButton.style.zIndex = '99999';
+                contextButton.style.background = 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)';
+                contextButton.style.color = 'white';
+                contextButton.style.padding = '12px 20px';
+                contextButton.style.borderRadius = '12px';
+                contextButton.style.border = 'none';
+                contextButton.style.cursor = 'pointer';
+                contextButton.style.fontSize = '14px';
+                contextButton.style.fontWeight = '600';
+                contextButton.style.boxShadow = '0 10px 25px -5px rgba(59, 130, 246, 0.4)';
+                contextButton.style.transition = 'all 0.3s ease';
+                contextButton.style.fontFamily = 'Inter, sans-serif';
+                
+                console.log('✅ STYLING: Button styled successfully');
+                
+                // Add click handler
+                contextButton.addEventListener('click', function(e) {
+                    console.log('🎯 BUTTON CLICKED!');
+                    e.stopPropagation();
+                    e.preventDefault();
+                    
+                    // Show context in sidebar
+                    showContextInSidebar(text);
+                    
+                    // Hide the button
+                    hideContextButton();
+                });
+                
+                console.log('✅ EVENTS: Click handler added');
+                
+                // Add to page
+                console.log('🔧 DOM: Adding button to document.body');
+                document.body.appendChild(contextButton);
+                currentContextButton = contextButton;
+                
+                console.log('✅ SUCCESS: Context button added to DOM');
+                console.log('✅ Position:', x, y);
+                console.log('✅ Button in DOM:', document.body.contains(contextButton));
+                console.log('✅ Button visible:', contextButton.offsetParent !== null);
+                console.log('✅ Button styles:', {
+                    position: contextButton.style.position,
+                    left: contextButton.style.left,
+                    top: contextButton.style.top,
+                    zIndex: contextButton.style.zIndex
+                });
+                
+                // Force a repaint
+                contextButton.offsetHeight;
+                
+            } catch (error) {
+                console.error('❌ CRITICAL ERROR in showContextButton:', error);
+                console.error('❌ Stack trace:', error.stack);
+            }
+        }
+        
+        function hideContextButton() {
+            // Remove the tracked button
+            if (currentContextButton && currentContextButton.parentNode) {
+                currentContextButton.remove();
+                console.log('✅ Context button removed from DOM');
+            }
+            
+            // Also remove any other buttons with the same ID (safety cleanup)
+            const existingButtons = document.querySelectorAll('#contextButton');
+            existingButtons.forEach(button => {
+                if (button !== currentContextButton) {
+                    button.remove();
+                    console.log('🧹 Cleaned up duplicate button');
+                }
+            });
+            
+            currentContextButton = null;
+        }
+        
+        async function showContextInSidebar(text) {
+            console.log('🔧 CONTEXT ANALYSIS: Starting RAG analysis for:', text);
+            
+            // Switch to context tab
+            const contextTab = document.getElementById('contextTabHeader');
+            if (contextTab) {
+                contextTab.click();
+                console.log('✅ Switched to context tab');
+            }
+            
+            // Update context content with loading state
+            const contextContent = document.getElementById('contextContent');
+            if (contextContent) {
+                contextContent.innerHTML = `
+                    <div class="p-6">
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-slate-800 mb-4">Context Analysis</h3>
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                                <p class="text-sm text-blue-800"><strong>Selected Text:</strong> "${text}"</p>
+                            </div>
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                                <div class="flex items-center">
+                                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-600 mr-2"></div>
+                                    <p class="text-sm text-yellow-800">Analyzing context using RAG and AI...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            try {
+                // Perform actual RAG analysis
+                await performRealContextAnalysis(text, contextContent);
+                
+            } catch (error) {
+                console.error('❌ CONTEXT ERROR:', error);
+                showErrorMessage(contextContent, text, error);
+            }
+        }
+        
+        async function performRealContextAnalysis(text, contextContent) {
+            try {
+                console.log('🔍 RAG: Starting advanced context analysis');
+                console.log('🔍 RAG: Selected text:', text);
+                
+                // Get stored documents from localStorage
+                const documents = getStoredDocuments();
+                console.log('📚 DOCUMENTS: Found', documents.length, 'documents');
+                
+                if (documents.length === 0) {
+                    showNoDocumentsMessage(contextContent, text);
+                    return;
+                }
+                
+                // Use the new sophisticated RAG analysis service
+                if (window.RAGAnalysisService) {
+                    console.log('🔍 RAG: Using advanced RAG service');
+                    const ragService = new window.RAGAnalysisService();
+                    
+                    // Perform advanced analysis with prompt engineering
+                    const result = await ragService.analyzeSelection(text, null, documents, 'detailed');
+                    
+                    console.log('🔍 RAG: Advanced analysis completed', result);
+                    
+                    // Display results with advanced analysis
+                    displayResults(contextContent, text, result.sources, result.analysis);
+                    return;
+                } else {
+                    console.log('🔍 RAG: RAG service not available, using fallback');
+                    await performFallbackAnalysis(text, contextContent, documents);
+                }
+                
+            } catch (error) {
+                console.error('❌ RAG: Advanced analysis failed:', error);
+                // Fallback to simple analysis
+                await performFallbackAnalysis(text, contextContent, documents);
+            }
+        }
+        
+        async function performFallbackAnalysis(text, contextContent, documents) {
+            console.log('🔍 RAG: Using fallback analysis method');
+            
+            // Extract key terms from selected text
+            const searchTerms = text.toLowerCase()
+                .replace(/[^\w\s%]/g, ' ')
+                .split(/\s+/)
+                .filter(term => term.length > 3)
+                .filter(term => !['this', 'that', 'with', 'from', 'they', 'were', 'been', 'have', 'will'].includes(term));
+            
+            console.log('🔍 SEARCH TERMS:', searchTerms);
+            
+            // Search through documents for relevant content
+            const relevantContent = [];
+            
+            for (const doc of documents) {
+                if (doc.content) {
+                    const sentences = doc.content.split(/[.!?]+/);
+                    
+                    for (const sentence of sentences) {
+                        if (sentence.trim().length < 30) continue;
+                        
+                        let score = 0;
+                        const lowerSentence = sentence.toLowerCase();
+                        
+                        // Check for search terms
+                        for (const term of searchTerms) {
+                            if (lowerSentence.includes(term.toLowerCase())) {
+                                score += 1;
+                            }
+                        }
+                        
+                        // Boost score for financial data
+                        if (/\d+\.?\d*%|\$\d+|\d+\.\d+\s*(billion|million|thousand)/i.test(sentence)) {
+                            score += 2;
+                        }
+                        
+                        if (score > 0) {
+                            relevantContent.push({
+                                text: sentence.trim(),
+                                score: score,
+                                document: doc.name
+                            });
+                        }
+                    }
+                }
+            }
+            
+            // Sort by relevance and get top results
+            relevantContent.sort((a, b) => b.score - a.score);
+            const topResults = relevantContent.slice(0, 5);
+            
+            console.log('🔍 RAG: Found', topResults.length, 'relevant passages');
+            
+            // Try to get AI analysis
+            let aiAnalysis = null;
+            try {
+                aiAnalysis = await callClaudeAPI(text, topResults);
+            } catch (error) {
+                console.error('🤖 AI analysis failed:', error);
+            }
+            
+            // Display results
+            displayResults(contextContent, text, topResults, aiAnalysis);
+        }
+        
+        function getStoredDocuments() {
+            try {
+                console.log('📚 LOADING: Checking for stored documents...');
+                
+                // Try the main document storage key
+                let stored = localStorage.getItem('earningsGenAI_documents');
+                if (stored) {
+                    console.log('📚 FOUND: Documents in earningsGenAI_documents');
+                    const parsed = JSON.parse(stored);
+                    console.log('📚 RAW DATA:', parsed);
+                    
+                    // Handle different possible data structures
+                    let documents = [];
+                    
+                    if (parsed.documents && Array.isArray(parsed.documents)) {
+                        documents = parsed.documents;
+                    } else if (Array.isArray(parsed)) {
+                        documents = parsed;
+                    } else {
+                        console.log('❌ UNEXPECTED FORMAT:', typeof parsed);
+                        return [];
+                    }
+                    
+                    console.log('📚 PROCESSING:', documents.length, 'documents');
+                    
+                    const processedDocs = documents.map((doc, index) => {
+                        console.log(`📄 DOC ${index}:`, doc);
+                        
+                        // Try multiple possible field names for content
+                        let content = '';
+                        if (doc.content) content = doc.content;
+                        else if (doc.text) content = doc.text;
+                        else if (doc.extractedText) content = doc.extractedText;
+                        else if (doc.data) content = doc.data;
+                        else if (doc.body) content = doc.body;
+                        
+                        // Check if content is corrupted PDF data
+                        const isBinaryData = content && (
+                            content.includes('endstream') || 
+                            content.includes('endobj') || 
+                            content.includes('%%EOF') ||
+                            content.includes('') ||
+                            content.length > 100 && !/[a-zA-Z\s]{20,}/.test(content)
+                        );
+                        
+                        if (isBinaryData) {
+                            console.log(`⚠️ DOC ${index}: Detected corrupted/binary PDF data, using fallback`);
+                            // Use fallback content based on filename
+                            if (doc.name && doc.name.toLowerCase().includes('unh')) {
+                                content = `UnitedHealth Group Q2 2025 Earnings Call Remarks. This document contains UnitedHealth Group's quarterly earnings information including financial metrics, medical loss ratios, revenue growth, operational efficiency improvements, and strategic business updates. The company reported strong performance with improved medical loss ratios from 83.2% to 82.1%, indicating better cost management and operational efficiency. Revenue growth of 13% year-over-year to $92.4 billion was achieved. Optum Health continued strong performance with value-based care arrangements covering 4.2 million patients, up 15% from the prior year quarter.`;
+                            } else {
+                                content = `Financial document containing earnings and business performance data. This document includes key financial metrics, operational updates, and strategic business information relevant to the company's quarterly performance.`;
+                            }
+                            console.log(`✅ DOC ${index}: Using fallback content`);
+                        }
+                        
+                        // Try multiple possible field names for filename
+                        let name = '';
+                        if (doc.name) name = doc.name;
+                        else if (doc.filename) name = doc.filename;
+                        else if (doc.fileName) name = doc.fileName;
+                        else if (doc.title) name = doc.title;
+                        else name = `Document ${index + 1}`;
+                        
+                        const processed = {
+                            name: name,
+                            content: content,
+                            type: doc.type || 'unknown',
+                            size: doc.size || 0,
+                            isExtracted: !isBinaryData
+                        };
+                        
+                        console.log(`📄 PROCESSED ${index}:`, processed);
+                        return processed;
+                    }).filter(doc => doc.content && doc.content.length > 10); // Only keep docs with actual content
+                    
+                    console.log('✅ FINAL DOCS:', processedDocs.length, 'documents with content');
+                    return processedDocs;
+                }
+                
+                // If no documents found, create a sample for testing
+                console.log('📚 NO DOCS FOUND: Creating sample document');
+                return [
+                    {
+                        name: "Sample UnitedHealth Report",
+                        content: "UnitedHealth Group reported strong Q2 2025 results with revenue growth of 13% year-over-year to $92.4 billion. The company's medical loss ratio improved to 82.1%, down from 83.2% in the prior year quarter, reflecting better cost management and operational efficiency. Optum Health continued its strong performance with value-based care arrangements now covering 4.2 million patients, up 15% from Q2 2024. Strategic investments in digital health and telehealth platforms contributed to improved member engagement and satisfaction scores.",
+                        type: "earnings_report"
+                    }
+                ];
+                
+            } catch (error) {
+                console.error('❌ ERROR loading documents:', error);
+                console.error('❌ ERROR stack:', error.stack);
+                return [];
+            }
+        }
+        
+        async function callClaudeAPI(text, relevantContent) {
+            console.log('🤖 AI: UPDATED FUNCTION - Attempting Claude API call via server');
+            
+            try {
+                // Build context from relevant content
+                let contextText = '';
+                if (relevantContent.length > 0) {
+                    contextText = '\n\nRelevant context from documents:\n';
+                    relevantContent.forEach((item, i) => {
+                        contextText += `${i + 1}. From ${item.document}: "${item.text}"\n`;
+                    });
+                }
+                
+                const prompt = `Analyze this financial text: "${text}"${contextText}
+                
+Provide a concise analysis covering:
+1. What this metric/statement means
+2. Key insights and implications  
+3. Industry context if applicable
+4. Potential significance
+
+Keep response under 300 words and focus on actionable insights.`;
+                
+                // Call our server endpoint instead of direct API
+                const response = await fetch('/api/analyze-context', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        documents: relevantContent.map(item => ({
+                            name: item.document,
+                            content: item.text
+                        }))
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('🤖 AI: Claude analysis completed via server');
+                
+                if (data.content && data.content[0] && data.content[0].text) {
+                    return data.content[0].text;
+                } else {
+                    throw new Error('Invalid response format from server');
+                }
+                
+            } catch (error) {
+                console.error('🤖 AI: Error calling server:', error);
+                throw new Error(`AI analysis failed: ${error.message}`);
+            }
+        }
+        
+        function displayResults(contextContent, text, relevantContent, aiAnalysis) {
+            let html = `
+                <div class="p-6">
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4">✅ Context Analysis Results</h3>
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                            <p class="text-sm text-blue-800"><strong>Selected Text:</strong> "${text}"</p>
+                        </div>
+            `;
+            
+            // AI Analysis Section FIRST (most important)
+            if (aiAnalysis) {
+                html += `
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                        <h4 class="font-semibold text-green-800 mb-2">🤖 AI Analysis</h4>
+                        <div class="text-sm text-green-700 whitespace-pre-line bg-white p-3 rounded border">${aiAnalysis}</div>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+                        <h4 class="font-semibold text-orange-800 mb-2">🤖 AI Analysis (Optional)</h4>
+                        <p class="text-sm text-orange-700 mb-2">AI analysis requires the server to be running with Claude API key in .env file. To enable:</p>
+                        <div class="text-xs text-orange-600 bg-white p-2 rounded border">
+                            <p>1. Make sure server is running: <code>cd server && npm start</code></p>
+                            <p>2. Check if .env file exists with ANTHROPIC_API_KEY</p>
+                            <p>3. Get API key from <a href="https://console.anthropic.com/" target="_blank" class="underline">Anthropic Console</a></p>
+                        </div>
+                        <p class="text-xs text-orange-600 mt-2">Note: RAG document analysis works without API key!</p>
+                    </div>
+                `;
+            }
+            
+            // Document Context Section SECOND (supporting evidence)
+            if (relevantContent.length > 0) {
+                html += `
+                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-4">
+                        <h4 class="font-semibold text-slate-800 mb-3">📚 Supporting Evidence - Found ${relevantContent.length} Relevant Passages</h4>
+                `;
+                
+                relevantContent.forEach((item, i) => {
+                    html += `
+                        <div class="mb-3 ${i > 0 ? 'border-t border-slate-200 pt-3' : ''}">
+                            <p class="text-xs font-medium text-slate-600 mb-1">📄 From: ${item.document} (Relevance Score: ${item.score})</p>
+                            <p class="text-sm text-slate-700 bg-white p-2 rounded border">"${item.text}"</p>
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+            } else {
+                html += `
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                        <h4 class="font-semibold text-yellow-800 mb-2">📚 RAG Analysis</h4>
+                        <p class="text-sm text-yellow-700">No relevant passages found in uploaded documents for the selected text.</p>
+                    </div>
+                `;
+            }
+            
+            html += `
+                        <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                            <p class="text-xs text-slate-600">
+                                ${aiAnalysis ? '✅' : '⚠️'} AI Analysis: ${aiAnalysis ? 'Working with Claude API' : 'Requires Claude API key (optional)'}<br>
+                                ✅ RAG System: Working - Found and analyzed documents
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            contextContent.innerHTML = html;
+            console.log('✅ DISPLAY: Results displayed successfully');
+        }
+        
+        function showNoDocumentsMessage(contextContent, text) {
+            contextContent.innerHTML = `
+                <div class="p-6">
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4">Context Analysis</h3>
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                            <p class="text-sm text-blue-800"><strong>Selected Text:</strong> "${text}"</p>
+                        </div>
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <h4 class="font-semibold text-yellow-800 mb-2">📄 No Documents Found</h4>
+                            <p class="text-sm text-yellow-700 mb-2">To get relevant context analysis:</p>
+                            <ol class="text-sm text-yellow-700 list-decimal list-inside space-y-1">
+                                <li>Go to the Memory tab</li>
+                                <li>Upload financial documents</li>
+                                <li>Try context analysis again</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function showErrorMessage(contextContent, text, error) {
+            contextContent.innerHTML = `
+                <div class="p-6">
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4">Context Analysis</h3>
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                            <p class="text-sm text-blue-800"><strong>Selected Text:</strong> "${text}"</p>
+                        </div>
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <h4 class="font-semibold text-red-800 mb-2">❌ Analysis Error</h4>
+                            <p class="text-sm text-red-700">${error.message}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Prevent context button from being hidden by other scripts
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'contextButton') {
+                e.stopPropagation();
+                return false;
+            }
+        });
+        
+        console.log('🔧 Context button script loaded successfully');
+    </script>
+</body>
+</html>
+

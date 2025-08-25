@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Folders - Earnings AI</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="css/style.css?v=6" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen bg-gray-50">
+        <!-- Left Sidebar - Settings and Navigation -->
+        <div class="w-20 bg-white border-r border-gray-200 flex flex-col items-center py-4 space-y-4">
+            <!-- Settings Button -->
+            <button id="settingsBtn" class="text-2xl text-gray-600 hover:text-gray-800 transition-colors" title="Settings">
+                <i class="fas fa-cog"></i>
+            </button>
+            
+            <!-- Editor Button -->
+            <button id="editorBtn" class="w-12 h-12 flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors" title="Editor">
+                <i class="fas fa-pen text-lg"></i>
+            </button>
+            
+            <!-- Save Button -->
+            <button id="saveBtn" class="w-12 h-12 flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors" title="Save Document">
+                <i class="fas fa-save text-lg"></i>
+            </button>
+            
+            <!-- Folder Button -->
+            <button id="folderBtn" class="w-12 h-12 flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors bg-blue-100 text-blue-600" title="Documents">
+                <i class="fas fa-folder text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col bg-white">
+            <!-- Header -->
+            <header class="bg-white border-b border-gray-200 px-8 py-6">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <button id="backToEditorBtn" onclick="window.location.href='index.html'" class="mr-4 p-2 rounded-lg hover:bg-gray-100 transition-colors" title="Back to Editor">
+                            <i class="fas fa-edit text-gray-600"></i>
+                            <span class="ml-2 text-xs text-gray-500">Editor</span>
+                        </button>
+                        <button id="backToFoldersBtn" onclick="console.log('🔙 Back button clicked!'); goBack();" class="mr-4 p-2 rounded-lg hover:bg-blue-100 bg-blue-50 border border-blue-200 transition-colors hidden" title="Go Back One Level">
+                            <i class="fas fa-arrow-left text-blue-600"></i>
+                            <span class="ml-2 text-xs text-blue-600">Back</span>
+                        </button>
+                        <h1 class="text-3xl font-bold text-slate-900" id="pageTitle">Project Folders</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button id="createFolderBtn" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium">
+                            <i class="fas fa-folder-plus mr-2"></i>New Folder
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+
+
+        <!-- Main Content -->
+        <div class="flex-1 px-8 py-8">
+            <!-- Breadcrumb -->
+            <nav class="mb-6">
+                <ol id="breadcrumb" class="flex items-center space-x-2 text-sm text-gray-500">
+                    <li><a href="#" class="hover:text-gray-700">All Projects</a></li>
+                </ol>
+            </nav>
+
+            <!-- Search Section -->
+            <div class="mb-8">
+                <div class="relative max-w-lg">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400 text-lg"></i>
+                    </div>
+                    <input type="text" id="searchInput" placeholder="Search folders and documents..." 
+                           class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base font-medium bg-gray-50 focus:bg-white transition-all duration-200">
+                    <div id="searchResults" class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-xl mt-2 hidden z-20 max-h-80 overflow-y-auto">
+                        <!-- Search results will appear here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Folders List -->
+            <div id="foldersContainer" class="space-y-3 mb-8">
+                <!-- Folders will be dynamically inserted here -->
+            </div>
+
+
+
+            <!-- Empty State -->
+            <div id="emptyState" class="text-center py-16 hidden">
+                <div class="w-32 h-32 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-folder-open text-4xl text-slate-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-900 mb-3">No folders yet</h3>
+                <p class="text-slate-600 mb-6 text-lg">Create your first folder to organize your documents</p>
+                <button onclick="createFolder()" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium text-lg">
+                    <i class="fas fa-folder-plus mr-2"></i>Create Folder
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Folder Modal -->
+    <div id="createFolderModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Create New Folder</h3>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Folder Name</label>
+                    <input type="text" id="folderNameInput" placeholder="Enter folder name..." 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description (Optional)</label>
+                    <textarea id="folderDescInput" placeholder="Brief description..." 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none" rows="3"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeFolderModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
+                    <button onclick="saveFolderModal()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        // Global state
+        let folders = [];
+        let documents = [];
+        let currentFolder = null;
+
+
+        // Setup left sidebar functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Settings button
+            const settingsBtn = document.getElementById('settingsBtn');
+            if (settingsBtn) {
+                settingsBtn.addEventListener('click', () => {
+                    alert('Settings functionality coming soon!');
+                });
+            }
+
+            // Editor button
+            const editorBtn = document.getElementById('editorBtn');
+            if (editorBtn) {
+                editorBtn.addEventListener('click', () => {
+                    window.location.href = 'index.html';
+                });
+            }
+
+            // Save button
+            const saveBtn = document.getElementById('saveBtn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', () => {
+                    alert('Save functionality available in the editor!');
+                });
+            }
+
+            // Folder button (already active)
+            const folderBtn = document.getElementById('folderBtn');
+            if (folderBtn) {
+                folderBtn.addEventListener('click', () => {
+                    // Already on folders page
+                });
+            }
+        });
+
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', function(event) {
+            if (event.state && event.state.hasOwnProperty('folderId')) {
+                currentFolder = event.state.folderId;
+                updateBreadcrumb();
+                renderPage();
+                console.log('🔙 Browser back/forward to folder:', currentFolder);
+            }
+        });
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            createDefaultFolders(); // Create default folders if they don't exist
+            
+            // Set initial history state
+            history.replaceState({ folderId: null }, 'Project Folders', '#');
+            
+            renderPage();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Create folder button
+            document.getElementById('createFolderBtn').addEventListener('click', createFolder);
+            
+            // Search input
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            
+            searchInput.addEventListener('input', handleSearch);
+            searchInput.addEventListener('focus', () => {
+                if (searchInput.value.trim()) {
+                    searchResults.classList.remove('hidden');
+                }
+            });
+            
+            // Hide search results when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                    searchResults.classList.add('hidden');
+                }
+            });
+            
+            // Modal close on backdrop click
+            document.getElementById('createFolderModal').addEventListener('click', function(e) {
+                if (e.target === this) closeFolderModal();
+            });
+            
+            document.getElementById('documentModal').addEventListener('click', function(e) {
+                if (e.target === this) closeDocumentModal();
+            });
+
+            // Enter key for folder creation
+            document.getElementById('folderNameInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') saveFolderModal();
+            });
+        }
+
+        function loadData() {
+            // Load folders from localStorage
+            const storedFolders = localStorage.getItem('earningsGenAI_folders');
+            if (storedFolders) {
+                folders = JSON.parse(storedFolders);
+            }
+
+            // Load documents from localStorage (from editor saves)
+            const storedDocs = localStorage.getItem('earningsGenAI_savedDocuments');
+            if (storedDocs) {
+                documents = JSON.parse(storedDocs);
+            }
+
+            // Load memory files (uploaded documents) from localStorage
+            const storedMemory = localStorage.getItem('earningsGenAI_documents');
+            if (storedMemory) {
+                const memoryFiles = JSON.parse(storedMemory);
+                // Convert memory files to document format for display
+                memoryFiles.forEach((file, index) => {
+                    const memoryDoc = {
+                        id: `memory-${index}`,
+                        title: file.name,
+                        text: file.text,
+                        html: file.text, // Use text as HTML for now
+                        folderId: 'memory-default', // Connect to Memory folder
+                        type: 'memory',
+                        created: file.timestamp || new Date().toISOString(),
+                        modified: file.timestamp || new Date().toISOString(),
+                        wordCount: file.text ? file.text.split(' ').length : 0
+                    };
+                    documents.push(memoryDoc);
+                });
+                console.log('🧠 Loaded memory files:', memoryFiles.length);
+            }
+
+            console.log('📁 Loaded folders:', folders.length);
+            console.log('📄 Loaded documents:', documents.length);
+        }
+
+        function createDefaultFolders() {
+            // Create a default "Main Project" folder if it doesn't exist
+            let mainProjectFolder = folders.find(f => f.name === 'Main Project' && f.parentId === null);
+            
+            if (!mainProjectFolder) {
+                mainProjectFolder = {
+                    id: 'main-project-default',
+                    name: 'Main Project',
+                    description: 'Your primary project workspace',
+                    type: 'system',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString(),
+                    parentId: null
+                };
+                folders.push(mainProjectFolder);
+                console.log('📁 Created default Main Project folder');
+            }
+
+            // Check if Memory and Drafts subfolders exist within the main project
+            const hasMemory = folders.some(f => f.name === 'Memory' && f.parentId === mainProjectFolder.id);
+            const hasDrafts = folders.some(f => f.name === 'Drafts' && f.parentId === mainProjectFolder.id);
+
+            if (!hasMemory) {
+                const memoryFolder = {
+                    id: 'memory-default',
+                    name: 'Memory',
+                    description: 'Files uploaded to memory in the editor',
+                    type: 'system',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString(),
+                    parentId: mainProjectFolder.id
+                };
+                folders.push(memoryFolder);
+                console.log('📁 Created Memory subfolder in Main Project');
+            }
+
+            if (!hasDrafts) {
+                const draftsFolder = {
+                    id: 'drafts-default',
+                    name: 'Drafts',
+                    description: 'Documents saved from the editor',
+                    type: 'system',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString(),
+                    parentId: mainProjectFolder.id
+                };
+                folders.push(draftsFolder);
+                console.log('📁 Created Drafts subfolder in Main Project');
+            }
+
+            // Save if we created new folders
+            if (!mainProjectFolder || !hasMemory || !hasDrafts) {
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('earningsGenAI_folders', JSON.stringify(folders));
+            localStorage.setItem('earningsGenAI_savedDocuments', JSON.stringify(documents));
+            console.log('💾 Data saved to localStorage');
+        }
+
+        function renderPage() {
+            renderFolders();
+            updateEmptyState();
+        }
+
+        function renderFolders() {
+            const container = document.getElementById('foldersContainer');
+            container.innerHTML = '';
+
+            // Show folders based on current location
+            const relevantFolders = folders.filter(folder => folder.parentId === currentFolder);
+            
+            relevantFolders.forEach(folder => {
+                const folderCard = createFolderCard(folder);
+                container.appendChild(folderCard);
+            });
+        }
+
+        function createFolderCard(folder) {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-lg border border-slate-200 p-4 hover:shadow-md transition-all duration-200 cursor-pointer hover:border-slate-300 flex items-center justify-between';
+            card.onclick = () => openFolder(folder.id);
+
+            // Add folder icon based on type
+            const folderIcon = folder.type === 'system' ? 'fa-folder' : 'fa-folder-plus';
+            const folderColor = folder.type === 'system' ? 'text-blue-600' : 'text-green-600';
+
+            const docCount = documents.filter(doc => doc.folderId === folder.id).length;
+            const subfolderCount = folders.filter(f => f.parentId === folder.id).length;
+
+            card.innerHTML = `
+                <div class="flex items-center flex-1">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                        <i class="fas ${folderIcon} text-lg ${folderColor}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-medium text-gray-900 mb-1">${folder.name}</h3>
+                        <div class="flex items-center text-xs text-gray-500 space-x-3">
+                            <span><i class="fas fa-folder mr-1"></i>${subfolderCount} folder${subfolderCount !== 1 ? 's' : ''}</span>
+                            <span><i class="fas fa-file mr-1"></i>${docCount} document${docCount !== 1 ? 's' : ''}</span>
+                            <span>Modified ${formatDate(folder.modified)}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="event.stopPropagation(); renameFolderPrompt('${folder.id}')" class="text-gray-400 hover:text-blue-600 transition-colors p-2" title="Rename">
+                        <i class="fas fa-edit text-sm"></i>
+                    </button>
+                    <button onclick="event.stopPropagation(); moveFolderPrompt('${folder.id}')" class="text-gray-400 hover:text-green-600 transition-colors p-2" title="Move">
+                        <i class="fas fa-arrows-alt text-sm"></i>
+                    </button>
+                    <button onclick="event.stopPropagation(); deleteFolderPrompt('${folder.id}')" class="text-gray-400 hover:text-red-600 transition-colors p-2" title="Delete">
+                        <i class="fas fa-trash text-sm"></i>
+                    </button>
+                    <i class="fas fa-chevron-right text-gray-400 ml-2"></i>
+                </div>
+            `;
+
+            return card;
+        }
+
+
+
+
+
+        function updateEmptyState() {
+            const emptyState = document.getElementById('emptyState');
+            const foldersContainer = document.getElementById('foldersContainer');
+
+            if (folders.length === 0) {
+                emptyState.classList.remove('hidden');
+                foldersContainer.classList.add('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                foldersContainer.classList.remove('hidden');
+            }
+        }
+
+        function openFolder(folderId) {
+            currentFolder = folderId;
+            
+            // Add to browser history
+            const folder = folders.find(f => f.id === folderId);
+            const folderName = folder ? folder.name : 'Folder';
+            history.pushState({ folderId: folderId }, folderName, `#folder-${folderId}`);
+            
+            updateBreadcrumb();
+            renderPage();
+            console.log('📁 Opened folder:', folderId);
+        }
+
+        function goBack() {
+            if (currentFolder) {
+                // Find parent folder
+                const currentFolderObj = folders.find(f => f.id === currentFolder);
+                const newFolderId = currentFolderObj ? currentFolderObj.parentId : null;
+                
+                currentFolder = newFolderId;
+                
+                // Update browser history
+                if (newFolderId) {
+                    const folder = folders.find(f => f.id === newFolderId);
+                    const folderName = folder ? folder.name : 'Folder';
+                    history.pushState({ folderId: newFolderId }, folderName, `#folder-${newFolderId}`);
+                } else {
+                    history.pushState({ folderId: null }, 'Project Folders', '#');
+                }
+                
+                updateBreadcrumb();
+                renderPage();
+                console.log('🔙 Went back to parent folder');
+            }
+        }
+
+        function goToRoot() {
+            currentFolder = null;
+            updateBreadcrumb();
+            renderPage();
+            console.log('🏠 Went to root');
+        }
+
+        function updateBreadcrumb() {
+            const breadcrumb = document.getElementById('breadcrumb');
+            const pageTitle = document.getElementById('pageTitle');
+            const backToFoldersBtn = document.getElementById('backToFoldersBtn');
+            
+            if (!currentFolder) {
+                breadcrumb.innerHTML = '<li><a href="#" onclick="goToRoot()" class="hover:text-gray-700">All Projects</a></li>';
+                pageTitle.textContent = 'Project Folders';
+                backToFoldersBtn.classList.add('hidden');
+                return;
+            }
+
+            // Build breadcrumb path
+            const path = [];
+            let current = currentFolder;
+            
+            while (current) {
+                const folder = folders.find(f => f.id === current);
+                if (folder) {
+                    path.unshift(folder);
+                    current = folder.parentId;
+                } else {
+                    break;
+                }
+            }
+
+            // Update page title to current folder name
+            const currentFolderObj = folders.find(f => f.id === currentFolder);
+            pageTitle.textContent = currentFolderObj ? currentFolderObj.name : 'Folder';
+            backToFoldersBtn.classList.remove('hidden');
+
+            breadcrumb.innerHTML = `
+                <li><a href="#" onclick="goToRoot()" class="hover:text-gray-700">All Projects</a></li>
+                ${path.map(folder => `
+                    <li class="flex items-center">
+                        <i class="fas fa-chevron-right mx-2 text-gray-400"></i>
+                        <a href="#" onclick="openFolder('${folder.id}')" class="hover:text-gray-700">${folder.name}</a>
+                    </li>
+                `).join('')}
+            `;
+        }
+
+        function createFolder() {
+            document.getElementById('createFolderModal').classList.remove('hidden');
+            document.getElementById('folderNameInput').focus();
+        }
+
+        function closeFolderModal() {
+            document.getElementById('createFolderModal').classList.add('hidden');
+            document.getElementById('folderNameInput').value = '';
+            document.getElementById('folderDescInput').value = '';
+        }
+
+        function saveFolderModal() {
+            const name = document.getElementById('folderNameInput').value.trim();
+            const description = document.getElementById('folderDescInput').value.trim();
+
+            if (!name) {
+                alert('Please enter a folder name');
+                return;
+            }
+
+            const folder = {
+                id: Date.now().toString(),
+                name: name,
+                description: description,
+                type: 'user',
+                created: new Date().toISOString(),
+                modified: new Date().toISOString(),
+                parentId: currentFolder // If we're inside a folder, this becomes the parent
+            };
+
+            folders.push(folder);
+            saveData();
+            renderPage();
+            closeFolderModal();
+
+            console.log('📁 Created folder:', folder.name);
+        }
+
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const searchResults = document.getElementById('searchResults');
+            
+            if (!query) {
+                searchResults.classList.add('hidden');
+                return;
+            }
+
+            // Filter folders and documents based on search
+            const filteredFolders = folders.filter(folder => 
+                folder.name.toLowerCase().includes(query) || 
+                (folder.description && folder.description.toLowerCase().includes(query))
+            );
+
+            const filteredDocs = documents.filter(doc => 
+                doc.title.toLowerCase().includes(query) ||
+                (doc.text && doc.text.toLowerCase().includes(query))
+            );
+
+            renderSearchResults(filteredFolders, filteredDocs);
+        }
+
+        function renderSearchResults(filteredFolders, filteredDocs) {
+            const searchResults = document.getElementById('searchResults');
+            
+            if (filteredFolders.length === 0 && filteredDocs.length === 0) {
+                searchResults.innerHTML = `
+                    <div class="p-4 text-center text-gray-500">
+                        <i class="fas fa-search text-2xl mb-2"></i>
+                        <p>No results found</p>
+                    </div>
+                `;
+                searchResults.classList.remove('hidden');
+                return;
+            }
+
+            let resultsHTML = '';
+
+            if (filteredFolders.length > 0) {
+                resultsHTML += '<div class="p-2 border-b border-gray-100"><div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Folders</div>';
+                filteredFolders.forEach(folder => {
+                    const docCount = documents.filter(doc => doc.folderId === folder.id).length;
+                    const subfolderCount = folders.filter(f => f.parentId === folder.id).length;
+                    resultsHTML += `
+                        <div onclick="openFolder('${folder.id}')" class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-folder text-blue-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">${folder.name}</div>
+                                <div class="text-xs text-gray-500">${subfolderCount} folders, ${docCount} documents</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                resultsHTML += '</div>';
+            }
+
+            if (filteredDocs.length > 0) {
+                resultsHTML += '<div class="p-2"><div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Documents</div>';
+                filteredDocs.forEach(doc => {
+                    const docIcon = doc.type === 'memory' ? 'fa-brain text-purple-600' : 'fa-file-alt text-green-600';
+                    const docBg = doc.type === 'memory' ? 'bg-purple-100' : 'bg-green-100';
+                    resultsHTML += `
+                        <div onclick="openDocumentFromSearch('${doc.id}')" class="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <div class="w-8 h-8 ${docBg} rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas ${docIcon}"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">${doc.title}</div>
+                                <div class="text-xs text-gray-500">${doc.wordCount || 0} words</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                resultsHTML += '</div>';
+            }
+
+            searchResults.innerHTML = resultsHTML;
+            searchResults.classList.remove('hidden');
+        }
+
+        function openDocumentFromSearch(docId) {
+            // Navigate to the document's folder first, then highlight the document
+            const doc = documents.find(d => d.id === docId);
+            if (doc && doc.folderId) {
+                openFolder(doc.folderId);
+            }
+            document.getElementById('searchResults').classList.add('hidden');
+            document.getElementById('searchInput').value = '';
+        }
+
+
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 24 * 60 * 60 * 1000) {
+                return 'Today';
+            } else if (diff < 7 * 24 * 60 * 60 * 1000) {
+                const days = Math.floor(diff / (24 * 60 * 60 * 1000));
+                return `${days} day${days > 1 ? 's' : ''} ago`;
+            } else {
+                return date.toLocaleDateString();
+            }
+        }
+
+        // Folder Management Functions
+        function renameFolderPrompt(folderId) {
+            const folder = folders.find(f => f.id === folderId);
+            if (!folder) return;
+
+            const newName = prompt(`Rename folder "${folder.name}":`, folder.name);
+            if (newName && newName.trim() && newName.trim() !== folder.name) {
+                renameFolder(folderId, newName.trim());
+            }
+        }
+
+        function renameFolder(folderId, newName) {
+            const folderIndex = folders.findIndex(f => f.id === folderId);
+            if (folderIndex === -1) return;
+
+            folders[folderIndex].name = newName;
+            folders[folderIndex].modified = new Date().toISOString();
+            saveData();
+            renderPage();
+            updateBreadcrumb();
+            console.log(`📝 Renamed folder to: ${newName}`);
+        }
+
+        function moveFolderPrompt(folderId) {
+            const folder = folders.find(f => f.id === folderId);
+            if (!folder) return;
+
+            // Get available parent folders (excluding the folder itself and its children)
+            const availableParents = folders.filter(f => 
+                f.id !== folderId && 
+                !isDescendantOf(f.id, folderId) &&
+                f.id !== folder.parentId
+            );
+
+            let options = 'Move folder to:\n0. Root level\n';
+            availableParents.forEach((f, index) => {
+                options += `${index + 1}. ${f.name}\n`;
+            });
+
+            const choice = prompt(options + '\nEnter choice number:');
+            if (choice === null) return;
+
+            const choiceNum = parseInt(choice);
+            if (choiceNum === 0) {
+                moveFolder(folderId, null);
+            } else if (choiceNum > 0 && choiceNum <= availableParents.length) {
+                moveFolder(folderId, availableParents[choiceNum - 1].id);
+            }
+        }
+
+        function moveFolder(folderId, newParentId) {
+            const folderIndex = folders.findIndex(f => f.id === folderId);
+            if (folderIndex === -1) return;
+
+            folders[folderIndex].parentId = newParentId;
+            folders[folderIndex].modified = new Date().toISOString();
+            saveData();
+            renderPage();
+            console.log(`📁 Moved folder to new parent: ${newParentId || 'root'}`);
+        }
+
+        function isDescendantOf(folderId, ancestorId) {
+            let current = folderId;
+            while (current) {
+                const folder = folders.find(f => f.id === current);
+                if (!folder) break;
+                if (folder.parentId === ancestorId) return true;
+                current = folder.parentId;
+            }
+            return false;
+        }
+
+        function deleteFolderPrompt(folderId) {
+            const folder = folders.find(f => f.id === folderId);
+            if (!folder) return;
+
+            // Check if folder has subfolders or documents
+            const hasSubfolders = folders.some(f => f.parentId === folderId);
+            const hasDocuments = documents.some(d => d.folderId === folderId);
+
+            let message = `Delete folder "${folder.name}"?`;
+            if (hasSubfolders || hasDocuments) {
+                message += '\n\nThis will also delete:';
+                if (hasSubfolders) message += '\n- All subfolders';
+                if (hasDocuments) message += '\n- All documents in this folder';
+            }
+
+            if (confirm(message)) {
+                deleteFolder(folderId);
+            }
+        }
+
+        function deleteFolder(folderId) {
+            // Delete all subfolders recursively
+            const subfolders = folders.filter(f => f.parentId === folderId);
+            subfolders.forEach(subfolder => deleteFolder(subfolder.id));
+
+            // Delete all documents in this folder
+            documents = documents.filter(d => d.folderId !== folderId);
+
+            // Delete the folder itself
+            folders = folders.filter(f => f.id !== folderId);
+
+            // If we're currently in the deleted folder, go to parent
+            if (currentFolder === folderId) {
+                const deletedFolder = folders.find(f => f.id === folderId);
+                currentFolder = deletedFolder ? deletedFolder.parentId : null;
+                updateBreadcrumb();
+            }
+
+            saveData();
+            renderPage();
+            console.log(`🗑️ Deleted folder: ${folderId}`);
+        }
+
+
+    </script>
+</body>
+</html>
