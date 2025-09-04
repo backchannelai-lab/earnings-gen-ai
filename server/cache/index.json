@@ -327,5 +327,33 @@
     "originalLength": 12,
     "query": "test message",
     "size": 378
+  },
+  "71222e053bb15791b6746cc58ca72643f009d196c5624a2723d1452dc4089342": {
+    "timestamp": 1757024736042,
+    "expiresAt": 1757111136042,
+    "originalLength": 5,
+    "query": "value",
+    "size": 846
+  },
+  "d34a207c9a341c7c05d11f3f98afa62e5c43e6602259a3b205c2230cd025a17a": {
+    "timestamp": 1757024755805,
+    "expiresAt": 1757111155805,
+    "originalLength": 136,
+    "query": "Optum Health continued its strong performance with value-based care arrangements now covering 4.2 million patients, up 15% from Q2 2024.",
+    "size": 2091
+  },
+  "617dec7fbed7d6ebcd3799b3f3c7bc489a9230704594aab3f036843c3b3de0d6": {
+    "timestamp": 1757024783925,
+    "expiresAt": 1757111183925,
+    "originalLength": 11,
+    "query": "DO YOU WORK",
+    "size": 437
+  },
+  "fd726e8e284a616a0ca57e0bfef89a85d21839b0ff56b556b09bdb83a65370aa": {
+    "timestamp": 1757026378510,
+    "expiresAt": 1757112778510,
+    "originalLength": 12,
+    "query": "DO YOU WORK?",
+    "size": 608
   }
 }

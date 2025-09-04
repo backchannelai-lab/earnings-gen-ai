@@ -23,7 +23,7 @@ class ConfigService {
             // AI Configuration
             ai: {
                 provider: 'anthropic',
-                model: process.env.CLAUDE_MODEL || 'claude-3-5-sonnet-20241022',
+                model: process.env.CLAUDE_MODEL || 'claude-sonnet-4-20250514',
                 maxTokens: parseInt(process.env.MAX_TOKENS) || 4000,
                 temperature: parseFloat(process.env.TEMPERATURE) || 0.7,
                 apiKey: process.env.ANTHROPIC_API_KEY

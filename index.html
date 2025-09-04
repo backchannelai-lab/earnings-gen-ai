@@ -206,7 +206,7 @@
         </button>
         
         <!-- Chat Interface -->
-        <div id="chatInterface" class="hidden">
+        <div id="chatInterface" class="hidden bg-white rounded-2xl shadow-2xl border border-slate-200 w-80 h-96 flex flex-col">
             <!-- Chat Header -->
             <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-4 rounded-t-2xl">
                 <div class="flex items-center justify-between">
@@ -227,19 +227,6 @@
             
             <!-- Chat Input -->
             <div class="p-4 border-t border-slate-200 bg-white">
-                <!-- Quick Example Buttons -->
-                <div class="mb-3 flex flex-wrap gap-2">
-                    <button class="quick-example-btn px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors">
-                        "Analyze this revenue data"
-                    </button>
-                    <button class="quick-example-btn px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors">
-                        "What are the key trends?"
-                    </button>
-                    <button class="quick-example-btn px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors">
-                        "Compare Q1 vs Q2"
-                    </button>
-                </div>
-                
                 <div class="flex space-x-3">
                     <input type="text" id="chatPromptInput" placeholder="Ask me anything..." class="flex-1 border-2 border-slate-200 rounded-xl px-4 py-3 focus:border-blue-500 focus:outline-none transition-colors">
                     <button id="chatPromptForm" class="px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl transition-all duration-300 hover:scale-105 shadow-lg">
@@ -256,7 +243,7 @@
 
 
 
-    <script type="module" src="js/main.js"></script>
+    <!-- SimpleAI removed to prevent conflicts -->
     <script src="js/modules/RAGAnalysisService.js"></script>
     <script>
         // Immediate button initialization - don't wait for anything
@@ -265,10 +252,10 @@
         function setupButtons() {
             console.log('🔍 SETUP: Initializing all buttons...');
             
-            // Save Button - COMPLETELY OVERRIDE SimpleAI
+            // Save Button - SimpleAI removed
             const saveBtn = document.getElementById('saveBtn');
             if (saveBtn) {
-                console.log('✅ SETUP: Save button found - COMPLETELY OVERRIDING SimpleAI');
+                console.log('✅ SETUP: Save button found - using our own implementation');
                 
                 // Remove ALL existing event listeners
                 const newSaveBtn = saveBtn.cloneNode(true);
@@ -276,7 +263,7 @@
                 
                 // Add our own click handler
                 newSaveBtn.addEventListener('click', function(e) {
-                    console.log('🔥🔥🔥 OUR SAVE BUTTON CLICKED - NO SimpleAI INTERFERENCE! 🔥🔥🔥');
+                    console.log('🔥 SAVE BUTTON CLICKED!');
                     e.preventDefault();
                     e.stopPropagation();
                     e.stopImmediatePropagation();
@@ -365,86 +352,77 @@
             // Floating Chat Button
             const chatToggleBtn = document.getElementById('chatToggleBtn');
             const chatInterface = document.getElementById('chatInterface');
-            const closeChatBtn = document.getElementById('closeChatBtn');
             const chatIcon = document.getElementById('chatIcon');
+            
+            console.log('🔍 CHAT SETUP DEBUG:', {
+                chatToggleBtn: chatToggleBtn,
+                chatInterface: chatInterface,
+                chatIcon: chatIcon
+            });
             
             if (chatToggleBtn && chatInterface) {
                 console.log('✅ SETUP: Chat toggle button found');
-                chatToggleBtn.addEventListener('click', function() {
-                    console.log('🔥 CHAT TOGGLE CLICKED!');
+                chatToggleBtn.addEventListener('click', function(e) {
+                    console.log('🔥 CHAT TOGGLE CLICKED!', e);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
                     if (chatInterface.classList.contains('hidden')) {
+                        console.log('📱 Opening chat interface');
                         chatInterface.classList.remove('hidden');
-                        chatIcon.className = 'fas fa-times text-xl';
+                        // Hide the circle button when chat is open
+                        chatToggleBtn.style.display = 'none';
                     } else {
+                        console.log('📱 Closing chat interface');
                         chatInterface.classList.add('hidden');
-                        chatIcon.className = 'fas fa-plus text-xl';
+                        // Show the circle button when chat is closed
+                        chatToggleBtn.style.display = 'flex';
+                    }
+                });
+                console.log('✅ Chat toggle event listener added');
+            } else {
+                console.error('❌ CHAT SETUP FAILED:', {
+                    chatToggleBtn: !!chatToggleBtn,
+                    chatInterface: !!chatInterface
+                });
+            }
+            
+            // Close chat button
+            const closeChatBtn = document.getElementById('closeChatBtn');
+            if (closeChatBtn && chatInterface) {
+                console.log('✅ SETUP: Close chat button found');
+                closeChatBtn.addEventListener('click', function(e) {
+                    console.log('🔥 CLOSE CHAT CLICKED!');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    chatInterface.classList.add('hidden');
+                    // Show the circle button when chat is closed via X button
+                    chatToggleBtn.style.display = 'flex';
+                });
+            }
+            
+            // Chat form functionality
+            const chatPromptForm = document.getElementById('chatPromptForm');
+            const chatPromptInput = document.getElementById('chatPromptInput');
+            
+            if (chatPromptForm && chatPromptInput) {
+                console.log('✅ SETUP: Chat form found');
+                chatPromptForm.addEventListener('click', function(e) {
+                    console.log('🔥 CHAT FORM CLICKED!');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.sendChatMessage();
+                });
+                
+                chatPromptInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        console.log('🔥 ENTER PRESSED!');
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.sendChatMessage();
                     }
                 });
             }
-            
-            if (closeChatBtn && chatInterface) {
-                console.log('✅ SETUP: Close chat button found');
-                closeChatBtn.addEventListener('click', function() {
-                    console.log('🔥 CLOSE CHAT CLICKED!');
-                    chatInterface.classList.add('hidden');
-                    chatIcon.className = 'fas fa-plus text-xl';
-                });
-            }
-            
-            // Chat form submission - Let SimpleAI handle this
-            console.log('✅ SETUP: Chat form will be handled by SimpleAI');
-            
-            // DEBUG: Check if chat elements exist immediately
-            setTimeout(() => {
-                const chatToggleBtn = document.getElementById('chatToggleBtn');
-                const chatInterface = document.getElementById('chatInterface');
-                const chatPromptForm = document.getElementById('chatPromptForm');
-                const chatPromptInput = document.getElementById('chatPromptInput');
-                
-                console.log('🔍 IMMEDIATE CHECK - Chat elements:', {
-                    chatToggleBtn: !!chatToggleBtn,
-                    chatInterface: !!chatInterface,
-                    chatPromptForm: !!chatPromptForm,
-                    chatPromptInput: !!chatPromptInput
-                });
-                
-                // Add immediate event listener for testing
-                if (chatPromptForm) {
-                    console.log('✅ Adding immediate test listener to chat form');
-                    chatPromptForm.addEventListener('click', function(e) {
-                        console.log('🔥 IMMEDIATE TEST: Chat form clicked!');
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        const message = chatPromptInput?.value?.trim();
-                        console.log('💬 IMMEDIATE TEST: Message:', message);
-                        
-                        if (message) {
-                            console.log('✅ IMMEDIATE TEST: Message found, calling standalone sendChatMessage');
-                            window.sendChatMessage();
-                        }
-                    });
-                }
-                
-                if (chatPromptInput) {
-                    console.log('✅ Adding immediate test listener to chat input');
-                    chatPromptInput.addEventListener('keypress', function(e) {
-                        if (e.key === 'Enter') {
-                            console.log('🔥 IMMEDIATE TEST: Enter pressed!');
-                            e.preventDefault();
-                            e.stopPropagation();
-                            
-                            const message = chatPromptInput?.value?.trim();
-                            console.log('💬 IMMEDIATE TEST: Message:', message);
-                            
-                            if (message) {
-                                console.log('✅ IMMEDIATE TEST: Message found, calling standalone sendChatMessage');
-                                window.sendChatMessage();
-                            }
-                        }
-                    });
-                }
-            }, 1000);
             
             // File Upload Functionality
             const fileUploadBox = document.getElementById('fileUploadBox');
@@ -659,12 +637,19 @@
                         </div>
                         <div>
                             <p class="text-sm font-medium text-slate-800">${doc.name}</p>
-                            <p class="text-xs text-slate-500">${(doc.size / 1024).toFixed(1)} KB • ${new Date(doc.timestamp).toLocaleDateString()}</p>
+                            <p class="text-xs text-slate-500">${(doc.size / 1024).toFixed(1)} KB • ${(() => {
+                                try {
+                                    const date = new Date(doc.timestamp);
+                                    return isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleDateString();
+                                } catch (error) {
+                                    return 'Invalid Date';
+                                }
+                            })()}</p>
                         </div>
                     </div>
                     <button onclick="removeDocument(${index})" class="text-red-500 hover:text-red-700 transition-colors">
                         <i class="fas fa-trash text-sm"></i>
-                    </button>
+        </button>
                 `;
                 fileList.appendChild(fileItem);
             });
@@ -681,16 +666,9 @@
             }
         };
         
-        // Save document function with folder selection - COMPLETELY OVERRIDES SimpleAI
+        // Save document function with folder selection
         window.saveDocument = async function() {
-            console.log('💾💾💾 OUR CUSTOM SAVE FUNCTION CALLED - COMPLETELY OVERRIDING SimpleAI! 💾💾💾');
-            
-            // AGGRESSIVELY remove SimpleAI saveDocument method
-            if (window.simpleAI) {
-                console.log('🗑️ Completely removing SimpleAI saveDocument method');
-                window.simpleAI.saveDocument = null;
-                delete window.simpleAI.saveDocument;
-            }
+            console.log('💾 SAVE FUNCTION CALLED!');
             
             // Also override any other save methods
             if (window.testSave) {
@@ -783,10 +761,10 @@
                                             class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors">
                                         <i class="fas fa-plus mr-1"></i>
                                         Create
-                                    </button>
-                                </div>
-                            </div>
-                            
+                    </button>
+                </div>
+            </div>
+            
                             <!-- Existing Folders -->
                             <div>
                                 <h3 class="text-sm font-medium text-gray-700 mb-3">Existing Folders</h3>
@@ -813,15 +791,15 @@
                                         <p class="text-sm">Create your first folder above</p>
                                     </div>
                                 `}
-                            </div>
-                        </div>
-                        
+                </div>
+            </div>
+            
                         <!-- Footer -->
                         <div class="flex justify-end space-x-3 p-6 border-t border-gray-200">
                             <button onclick="this.closest('.fixed').remove(); resolve(null)" 
                                     class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors">
                                 Cancel
-                            </button>
+                    </button>
                         </div>
                     </div>
                 `;
@@ -936,14 +914,14 @@
                         <div class="ml-4 flex-shrink-0 flex">
                             <button onclick="this.closest('.notification').remove()" class="inline-flex text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition ease-in-out duration-150">
                                 <i class="fas fa-times text-sm"></i>
-                            </button>
+                    </button>
                         </div>
                     </div>
                     <div class="mt-3 flex justify-end">
                         <button onclick="this.closest('.notification').remove()" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white ${buttonColor} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition ease-in-out duration-150">
                             OK
-                        </button>
-                    </div>
+                    </button>
+                </div>
                 </div>
             `;
             
@@ -1010,7 +988,17 @@
             };
             
             saved.reverse().forEach((doc) => {
-                const docDate = new Date(doc.timestamp);
+                // Handle invalid dates gracefully
+                let docDate;
+                try {
+                    docDate = new Date(doc.timestamp);
+                    if (isNaN(docDate.getTime())) {
+                        docDate = new Date();
+                    }
+                } catch (error) {
+                    console.warn('Invalid date for document:', doc.id, doc.timestamp);
+                    docDate = new Date();
+                }
                 const docDateOnly = new Date(docDate.getFullYear(), docDate.getMonth(), docDate.getDate());
                 
                 if (docDateOnly.getTime() === today.getTime()) {
@@ -1042,9 +1030,23 @@
                 `;
                 
                 docs.forEach((doc) => {
-                    const date = new Date(doc.timestamp);
-                    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    const dateStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                    // Handle invalid dates gracefully
+                    let date, timeStr, dateStr;
+                    try {
+                        date = new Date(doc.timestamp);
+                        if (isNaN(date.getTime())) {
+                            // If timestamp is invalid, use current date
+                            date = new Date();
+                        }
+                        timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        dateStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                    } catch (error) {
+                        console.warn('Invalid date for document:', doc.id, doc.timestamp);
+                        date = new Date();
+                        timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        dateStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                    }
+                    
                     const wordCount = doc.wordCount || 0;
                     const folderName = doc.folder || 'Unorganized';
                     
@@ -1065,19 +1067,19 @@
                             </div>
                             <button onclick="event.stopPropagation(); deleteDraft('${doc.id}')" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-all ml-2 p-1">
                                 <i class="fas fa-trash text-xs"></i>
-                            </button>
-                        </div>
+                    </button>
+                </div>
                     `;
                 });
                 
                 html += `
-                        </div>
-                    </div>
+            </div>
+        </div>
                 `;
             });
             
             html += `
-                </div>
+    </div>
             `;
             
             draftsContent.innerHTML = html;
@@ -1521,7 +1523,14 @@
                                         </div>
                                         <div class="flex-1">
                                             <h4 class="font-medium text-gray-800 mb-1">${doc.title}</h4>
-                                            <p class="text-sm text-gray-500">${doc.wordCount || 0} words • ${new Date(doc.timestamp).toLocaleDateString()}</p>
+                                            <p class="text-sm text-gray-500">${doc.wordCount || 0} words • ${(() => {
+                                                try {
+                                                    const date = new Date(doc.timestamp);
+                                                    return isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleDateString();
+                                                } catch (error) {
+                                                    return 'Invalid Date';
+                                                }
+                                            })()}</p>
                                         </div>
                                     </div>
                                     <div class="flex items-center space-x-2">
@@ -1599,20 +1608,11 @@
         setTimeout(setupButtons, 500);
         setTimeout(setupButtons, 1000);
         
-        // FINAL OVERRIDE - Make sure our save function is the only one
-        setTimeout(function() {
-            console.log('🔒 FINAL OVERRIDE: Ensuring our save function is the only one');
-            if (window.simpleAI) {
-                window.simpleAI.saveDocument = function() {
-                    console.log('🚫 SimpleAI saveDocument blocked - redirecting to our function');
-                    window.saveDocument();
-                };
-            }
-        }, 2000);
+        // SimpleAI removed - no overrides needed
         
-        // STANDALONE CHAT FUNCTION - Works without SimpleAI
+        // Chat function
         window.sendChatMessage = async function() {
-            console.log('🚀 STANDALONE sendChatMessage called');
+            console.log('🚀 sendChatMessage called');
             
             const chatPromptInput = document.getElementById('chatPromptInput');
             const chatHistory = document.getElementById('chatHistory');
@@ -1719,22 +1719,7 @@
                 chatHistory.scrollTop = chatHistory.scrollHeight;
             }
         };
-        
-        // TEST FUNCTION - Call this from console to test chat
-        window.testChat = function(message = "Hello, test message") {
-            console.log('🧪 TEST CHAT: Testing with message:', message);
-            
-            const chatPromptInput = document.getElementById('chatPromptInput');
-            if (chatPromptInput) {
-                chatPromptInput.value = message;
-                window.sendChatMessage();
-            } else {
-                console.error('❌ TEST CHAT: chatPromptInput not found');
-            }
-        };
-        
-        console.log('🧪 TEST FUNCTION: Call testChat("your message") from console to test');
-    </script>
+       </script>
     <script>
         // Force correct positioning and styling with sidebar movement
         document.addEventListener('DOMContentLoaded', function() {

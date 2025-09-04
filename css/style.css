@@ -68,7 +68,7 @@ body {
 /* Floating chat positioning */
 #floatingChat {
     position: fixed;
-    bottom: 24px;
+    bottom: 80px;
     right: 24px;
     z-index: 1000;
 }
@@ -182,8 +182,8 @@ button:focus-within {
     }
     
     #floatingChat {
-        bottom: 16px;
-        right: 16px;
+        bottom: 60px;
+        right: 18px;
     }
 }
 
@@ -191,9 +191,9 @@ button:focus-within {
 @media print {
     .sidebar-toggle-container,
     #floatingChat,
-    .context-button {
-        display: none !important;
-    }
+.context-button {
+    display: none !important;
+}
 }
 
 /* High contrast mode support */
