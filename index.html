@@ -391,42 +391,8 @@
                 });
             }
             
-            // Chat form submission
-            const chatPromptForm = document.getElementById('chatPromptForm');
-            const chatPromptInput = document.getElementById('chatPromptInput');
-            
-            if (chatPromptForm && chatPromptInput) {
-                console.log('✅ SETUP: Chat form found');
-                chatPromptForm.addEventListener('click', function() {
-                    console.log('🔥 CHAT FORM SUBMITTED!');
-                    const message = chatPromptInput.value.trim();
-                    if (message) {
-                        console.log('💬 Chat message:', message);
-                        // Add message to chat history
-                        const chatHistory = document.getElementById('chatHistory');
-                        const placeholder = document.getElementById('chatPlaceholder');
-                        if (placeholder) placeholder.remove();
-                        
-                        const messageDiv = document.createElement('div');
-                        messageDiv.className = 'mb-4 p-3 bg-blue-50 rounded-lg';
-                        messageDiv.innerHTML = `<p class="text-sm text-blue-800"><strong>You:</strong> ${message}</p>`;
-                        chatHistory.appendChild(messageDiv);
-                        
-                        // Clear input
-                        chatPromptInput.value = '';
-                        
-                        // Scroll to bottom
-                        chatHistory.scrollTop = chatHistory.scrollHeight;
-                    }
-                });
-                
-                // Also handle Enter key
-                chatPromptInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        chatPromptForm.click();
-                    }
-                });
-            }
+            // Chat form submission - Let SimpleAI handle this
+            console.log('✅ SETUP: Chat form will be handled by SimpleAI');
             
             // File Upload Functionality
             const fileUploadBox = document.getElementById('fileUploadBox');

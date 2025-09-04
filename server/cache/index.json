@@ -320,5 +320,12 @@
     "originalLength": 51,
     "query": "Hello, can you help me analyze some financial data?",
     "size": 834
+  },
+  "4f6bf21f130156ebca65d6dac659b3e50848e318c37cb8707081e6838e0dff66": {
+    "timestamp": 1757021889280,
+    "expiresAt": 1757108289280,
+    "originalLength": 12,
+    "query": "test message",
+    "size": 378
   }
 }

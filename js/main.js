@@ -1836,33 +1836,50 @@ Answer:</textarea>
     // ============================================================================
     
     initFloatingChat() {
+        console.log('🚀 Initializing floating chat...');
         const chatToggleBtn = document.getElementById('chatToggleBtn');
         const chatInterface = document.getElementById('chatInterface');
         const closeChatBtn = document.getElementById('closeChatBtn');
         const chatPromptForm = document.getElementById('chatPromptForm');
         const chatPromptInput = document.getElementById('chatPromptInput');
         
+        console.log('🔍 Chat elements found:', {
+            chatToggleBtn: !!chatToggleBtn,
+            chatInterface: !!chatInterface,
+            closeChatBtn: !!closeChatBtn,
+            chatPromptForm: !!chatPromptForm,
+            chatPromptInput: !!chatPromptInput
+        });
+        
         if (chatToggleBtn) {
+            console.log('✅ Setting up chat toggle button');
             chatToggleBtn.addEventListener('click', () => {
+                console.log('🔥 Chat toggle clicked');
                 this.toggleChat();
             });
         }
         
         if (closeChatBtn) {
+            console.log('✅ Setting up close chat button');
             closeChatBtn.addEventListener('click', () => {
+                console.log('🔥 Close chat clicked');
                 this.toggleChat();
             });
         }
         
         if (chatPromptForm) {
+            console.log('✅ Setting up chat form submit');
             chatPromptForm.addEventListener('click', () => {
+                console.log('🔥 Chat form clicked - calling sendChatMessage');
                 this.sendChatMessage();
             });
         }
         
         if (chatPromptInput) {
+            console.log('✅ Setting up chat input events');
             chatPromptInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
+                    console.log('🔥 Enter key pressed - calling sendChatMessage');
                     this.sendChatMessage();
                 }
             });
@@ -1910,13 +1927,26 @@ Answer:</textarea>
     }
     
     async sendChatMessage() {
+        console.log('🚀 sendChatMessage called');
         const chatPromptInput = document.getElementById('chatPromptInput');
         const chatHistory = document.getElementById('chatHistory');
         
-        if (!chatPromptInput || !chatHistory) return;
+        console.log('🔍 Chat elements:', {
+            chatPromptInput: !!chatPromptInput,
+            chatHistory: !!chatHistory
+        });
+        
+        if (!chatPromptInput || !chatHistory) {
+            console.error('❌ Missing chat elements');
+            return;
+        }
         
         const message = chatPromptInput.value.trim();
-        if (!message) return;
+        console.log('💬 Message:', message);
+        if (!message) {
+            console.log('❌ Empty message');
+            return;
+        }
         
         // Add user message
         const userMessage = document.createElement('div');
