@@ -420,12 +420,8 @@
                         console.log('💬 IMMEDIATE TEST: Message:', message);
                         
                         if (message) {
-                            console.log('✅ IMMEDIATE TEST: Message found, calling sendChatMessage');
-                            if (window.simpleAI && window.simpleAI.sendChatMessage) {
-                                window.simpleAI.sendChatMessage();
-                            } else {
-                                console.error('❌ IMMEDIATE TEST: simpleAI.sendChatMessage not found');
-                            }
+                            console.log('✅ IMMEDIATE TEST: Message found, calling standalone sendChatMessage');
+                            window.sendChatMessage();
                         }
                     });
                 }
@@ -442,12 +438,8 @@
                             console.log('💬 IMMEDIATE TEST: Message:', message);
                             
                             if (message) {
-                                console.log('✅ IMMEDIATE TEST: Message found, calling sendChatMessage');
-                                if (window.simpleAI && window.simpleAI.sendChatMessage) {
-                                    window.simpleAI.sendChatMessage();
-                                } else {
-                                    console.error('❌ IMMEDIATE TEST: simpleAI.sendChatMessage not found');
-                                }
+                                console.log('✅ IMMEDIATE TEST: Message found, calling standalone sendChatMessage');
+                                window.sendChatMessage();
                             }
                         }
                     });
@@ -1618,27 +1610,126 @@
             }
         }, 2000);
         
-        // TEST FUNCTION - Call this from console to test chat
-        window.testChat = function(message = "Hello, test message") {
-            console.log('🧪 TEST CHAT: Testing with message:', message);
+        // STANDALONE CHAT FUNCTION - Works without SimpleAI
+        window.sendChatMessage = async function() {
+            console.log('🚀 STANDALONE sendChatMessage called');
             
             const chatPromptInput = document.getElementById('chatPromptInput');
             const chatHistory = document.getElementById('chatHistory');
             
             if (!chatPromptInput || !chatHistory) {
-                console.error('❌ TEST CHAT: Missing chat elements');
+                console.error('❌ Missing chat elements');
                 return;
             }
             
-            // Set the message
-            chatPromptInput.value = message;
+            const message = chatPromptInput.value.trim();
+            if (!message) {
+                console.log('❌ Empty message');
+                return;
+            }
             
-            // Call sendChatMessage directly
-            if (window.simpleAI && window.simpleAI.sendChatMessage) {
-                console.log('✅ TEST CHAT: Calling sendChatMessage');
-                window.simpleAI.sendChatMessage();
+            console.log('💬 Sending message:', message);
+            
+            // Add user message
+            const userMessage = document.createElement('div');
+            userMessage.className = 'mb-4 p-3 bg-blue-50 rounded-lg';
+            userMessage.innerHTML = `<p class="text-sm text-blue-800"><strong>You:</strong> ${message}</p>`;
+            chatHistory.appendChild(userMessage);
+            
+            // Clear input
+            chatPromptInput.value = '';
+            
+            // Remove placeholder
+            const placeholder = document.getElementById('chatPlaceholder');
+            if (placeholder) placeholder.remove();
+            
+            // Scroll to bottom
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            
+            // Show typing indicator
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'mb-4 p-3 bg-slate-100 rounded-lg';
+            typingIndicator.innerHTML = '<p class="text-sm text-slate-600"><i class="fas fa-circle animate-pulse"></i> <i class="fas fa-circle animate-pulse"></i> <i class="fas fa-circle animate-pulse"></i> AI is thinking...</p>';
+            chatHistory.appendChild(typingIndicator);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            
+            try {
+                // Get current editor content
+                const editorContent = document.getElementById('articleContent')?.value || '';
+                const title = document.getElementById('articleTitle')?.value || '';
+                
+                // Get uploaded documents from memory
+                const documents = JSON.parse(localStorage.getItem('earningsGenAI_documents') || '[]');
+                
+                // Prepare request data
+                const requestData = {
+                    message: message,
+                    documents: documents.map(doc => ({
+                        content: doc.content,
+                        filename: doc.name
+                    })),
+                    editorContent: editorContent,
+                    title: title
+                };
+                
+                console.log('🚀 Sending chat request:', requestData);
+                
+                // Call the real API
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('✅ Chat response received:', data);
+                
+                // Remove typing indicator
+                typingIndicator.remove();
+                
+                // Add AI response
+                const aiMessage = document.createElement('div');
+                aiMessage.className = 'mb-4 p-3 bg-slate-100 rounded-lg';
+                
+                // Format the response with proper line breaks
+                const formattedResponse = data.response || data.content?.[0]?.text || 'No response received';
+                aiMessage.innerHTML = `<p class="text-sm text-slate-700">${formattedResponse.replace(/\n/g, '<br>')}</p>`;
+                
+                chatHistory.appendChild(aiMessage);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+                
+            } catch (error) {
+                console.error('❌ Chat error:', error);
+                
+                // Remove typing indicator
+                typingIndicator.remove();
+                
+                // Show error message
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'mb-4 p-3 bg-red-100 rounded-lg';
+                errorMessage.innerHTML = `<p class="text-sm text-red-700"><strong>Error:</strong> ${error.message}</p>`;
+                chatHistory.appendChild(errorMessage);
+                
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+        };
+        
+        // TEST FUNCTION - Call this from console to test chat
+        window.testChat = function(message = "Hello, test message") {
+            console.log('🧪 TEST CHAT: Testing with message:', message);
+            
+            const chatPromptInput = document.getElementById('chatPromptInput');
+            if (chatPromptInput) {
+                chatPromptInput.value = message;
+                window.sendChatMessage();
             } else {
-                console.error('❌ TEST CHAT: simpleAI.sendChatMessage not found');
+                console.error('❌ TEST CHAT: chatPromptInput not found');
             }
         };
         
