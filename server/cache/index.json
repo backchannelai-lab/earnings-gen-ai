@@ -313,5 +313,12 @@
     "originalLength": 4,
     "query": "year",
     "size": 475
+  },
+  "42a7ed6ae510f197e55f0e2b6c241cd12331072b91dcb35003b21ebafa2169da": {
+    "timestamp": 1757021731891,
+    "expiresAt": 1757108131891,
+    "originalLength": 51,
+    "query": "Hello, can you help me analyze some financial data?",
+    "size": 834
   }
 }

@@ -1937,30 +1937,73 @@ Answer:</textarea>
         typingIndicator.innerHTML = '<i class="fas fa-circle animate-pulse"></i> <i class="fas fa-circle animate-pulse"></i> <i class="fas fa-circle animate-pulse"></i>';
         chatHistory.appendChild(typingIndicator);
         
-        // Simulate AI response
-        setTimeout(() => {
+        try {
+            // Get current editor content
+            const editorContent = document.getElementById('articleContent')?.value || '';
+            const title = document.getElementById('articleTitle')?.value || '';
+            
+            // Get uploaded documents from memory
+            const documents = JSON.parse(localStorage.getItem('earningsGenAI_documents') || '[]');
+            
+            // Prepare request data
+            const requestData = {
+                message: message,
+                documents: documents.map(doc => ({
+                    content: doc.content,
+                    filename: doc.name
+                })),
+                editorContent: editorContent,
+                title: title
+            };
+            
+            console.log('🚀 Sending chat request:', requestData);
+            
+            // Call the real API
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('✅ Chat response received:', data);
+            
+            // Remove typing indicator
             typingIndicator.remove();
             
+            // Add AI response
             const aiMessage = document.createElement('div');
             aiMessage.className = 'chat-message bg-slate-100 text-slate-700';
-            aiMessage.innerHTML = this.generateAIResponse(message);
+            
+            // Format the response with proper line breaks
+            const formattedResponse = data.response || data.content?.[0]?.text || 'No response received';
+            aiMessage.innerHTML = formattedResponse.replace(/\n/g, '<br>');
+            
             chatHistory.appendChild(aiMessage);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            
+        } catch (error) {
+            console.error('❌ Chat error:', error);
+            
+            // Remove typing indicator
+            typingIndicator.remove();
+            
+            // Show error message
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'chat-message bg-red-100 text-red-700';
+            errorMessage.innerHTML = `Sorry, I encountered an error: ${error.message}. Please try again.`;
+            chatHistory.appendChild(errorMessage);
             
             chatHistory.scrollTop = chatHistory.scrollHeight;
-        }, 1500);
+        }
     }
     
-    generateAIResponse(message) {
-        const responses = [
-            "I can help you analyze that financial data. What specific aspects would you like me to focus on?",
-            "That's an interesting question about earnings. Let me break down the key metrics for you.",
-            "I can see you're looking at revenue trends. Would you like me to compare this with previous quarters?",
-            "Great question! Let me analyze the EBITDA growth and provide some insights.",
-            "I can help you understand the market performance. What specific data points are you most interested in?"
-        ];
-        
-        return responses[Math.floor(Math.random() * responses.length)];
-    }
 
     // Hide chat placeholder when user starts typing
     hideChatPlaceholder() {

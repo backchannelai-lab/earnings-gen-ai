@@ -965,50 +965,100 @@
             
             if (saved.length === 0) {
                 draftsContent.innerHTML = `
-                    <div class="text-center py-12 text-slate-600">
-                        <div class="w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                            <i class="fas fa-file-alt text-3xl text-purple-600"></i>
+                    <div class="text-center py-8 text-slate-500">
+                        <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-file-alt text-lg text-slate-400"></i>
                         </div>
-                        <h3 class="text-lg font-semibold text-slate-800 mb-3">Your Drafts</h3>
-                        <p class="text-sm text-slate-600">Saved documents will appear here</p>
+                        <h3 class="text-sm font-medium text-slate-600 mb-1">No drafts yet</h3>
+                        <p class="text-xs text-slate-500">Saved documents will appear here</p>
                     </div>
                 `;
                 return;
             }
             
+            // Group drafts by date (Today, Yesterday, This Week, etc.)
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const thisWeek = new Date(today);
+            thisWeek.setDate(thisWeek.getDate() - 7);
+            
+            const groupedDrafts = {
+                'Today': [],
+                'Yesterday': [],
+                'This Week': [],
+                'Older': []
+            };
+            
+            saved.reverse().forEach((doc) => {
+                const docDate = new Date(doc.timestamp);
+                const docDateOnly = new Date(docDate.getFullYear(), docDate.getMonth(), docDate.getDate());
+                
+                if (docDateOnly.getTime() === today.getTime()) {
+                    groupedDrafts['Today'].push(doc);
+                } else if (docDateOnly.getTime() === yesterday.getTime()) {
+                    groupedDrafts['Yesterday'].push(doc);
+                } else if (docDate > thisWeek) {
+                    groupedDrafts['This Week'].push(doc);
+                } else {
+                    groupedDrafts['Older'].push(doc);
+                }
+            });
+            
             let html = `
-                <div class="p-6">
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold text-slate-800 mb-4">Saved Drafts (${saved.length})</h3>
+                <div class="p-4">
+                    <div class="mb-4">
+                        <h3 class="text-sm font-semibold text-slate-700 mb-3">Drafts (${saved.length})</h3>
                     </div>
-                    <div class="space-y-3">
             `;
             
-            saved.reverse().forEach((doc, index) => {
-                const date = new Date(doc.timestamp).toLocaleDateString();
-                const time = new Date(doc.timestamp).toLocaleTimeString();
-                const wordCount = doc.wordCount || 0;
+            // Render each group
+            Object.entries(groupedDrafts).forEach(([groupName, docs]) => {
+                if (docs.length === 0) return;
                 
                 html += `
-                    <div class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer" onclick="loadDraft('${doc.id}')">
-                        <div class="flex items-center flex-1">
-                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
-                                <i class="fas fa-file-alt text-purple-600"></i>
+                    <div class="mb-4">
+                        <div class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2 px-1">${groupName}</div>
+                        <div class="space-y-1">
+                `;
+                
+                docs.forEach((doc) => {
+                    const date = new Date(doc.timestamp);
+                    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const dateStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                    const wordCount = doc.wordCount || 0;
+                    const folderName = doc.folder || 'Unorganized';
+                    
+                    html += `
+                        <div class="flex items-center justify-between py-1.5 px-3 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer group" onclick="loadDraft('${doc.id}')">
+                            <div class="flex items-center flex-1 min-w-0">
+                                <div class="w-5 h-5 bg-slate-100 rounded flex items-center justify-center mr-3 flex-shrink-0">
+                                    <i class="fas fa-file-alt text-xs text-slate-500"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="text-sm font-medium text-slate-800 truncate">${doc.title}</h4>
+                                    <div class="flex items-center gap-2 text-xs text-slate-500">
+                                        <span>${wordCount} words</span>
+                                        <span>•</span>
+                                        <span>${groupName === 'Today' ? timeStr : dateStr}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="flex-1">
-                                <h4 class="font-medium text-slate-800 mb-1">${doc.title}</h4>
-                                <p class="text-sm text-slate-500">${wordCount} words • ${date} at ${time}</p>
-                            </div>
+                            <button onclick="event.stopPropagation(); deleteDraft('${doc.id}')" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-all ml-2 p-1">
+                                <i class="fas fa-trash text-xs"></i>
+                            </button>
                         </div>
-                        <button onclick="event.stopPropagation(); deleteDraft('${doc.id}')" class="text-red-500 hover:text-red-700 transition-colors ml-3">
-                            <i class="fas fa-trash text-sm"></i>
-                        </button>
+                    `;
+                });
+                
+                html += `
+                        </div>
                     </div>
                 `;
             });
             
             html += `
-                    </div>
                 </div>
             `;
             
