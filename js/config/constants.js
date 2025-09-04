@@ -2,8 +2,8 @@
 export const CONFIG = {
     // API Configuration
     API: {
-        BASE_URL: 'https://api.openai.com/v1',
-        MODEL: 'gpt-4',
+        BASE_URL: 'https://api.anthropic.com/v1',
+        MODEL: 'claude-3-5-sonnet-20241022',
         MAX_TOKENS: 2000,
         TEMPERATURE: 0.7,
         TIMEOUT: 30000
@@ -102,7 +102,7 @@ export const EVENTS = {
 };
 
 export const STORAGE_KEYS = {
-    API_KEY: 'openai_api_key',
+    API_KEY: 'anthropic_api_key',
     USER_PREFERENCES: 'user_preferences',
     DOCUMENT_CACHE: 'document_cache',
     CONTEXT_HISTORY: 'context_history'

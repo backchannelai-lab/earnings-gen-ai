@@ -2,11 +2,30 @@
 
 A fully functional, AI-powered application that analyzes financial documents and generates professional earnings call scripts with accurate financial data extraction and compliance checking.
 
+## 📚 Documentation
+
+This project includes comprehensive documentation organized by topic:
+
+- **[🤖 Claude AI Integration](claude.md)** - AI features, configuration, and usage patterns
+- **[🛠️ Technical Stack](tech_stack.md)** - Architecture, implementation, and development details  
+- **[🎨 Design & UX](design.md)** - UI/UX patterns, responsive design, and accessibility
+- **[🔒 Security & Privacy](security.md)** - Security measures, privacy protection, and compliance
+
+## 🚀 Quick Start
+
+1. **Clone the repository** and navigate to the project directory
+2. **Set up your API key** by copying `env.template` to `.env` and adding your Anthropic API key
+3. **Start the server** with `cd server && npm install && npm start`
+4. **Open the application** by navigating to `http://localhost:8000` in your browser
+5. **Upload documents** and start generating earnings call scripts!
+
+For detailed setup instructions, see the [Technical Stack documentation](tech_stack.md).
+
 ## 🚀 Features
 
 ### Core Functionality
 - **Intelligent Document Processing**: Analyzes PDFs, Excel files, text documents, and more
-- **AI-Powered Analysis**: Uses OpenAI GPT-4 to extract financial insights and context
+- **AI-Powered Analysis**: Uses Anthropic Claude to extract financial insights and context
 - **Real Financial Data Extraction**: Automatically identifies numbers, percentages, dates, and key metrics
 - **Dynamic Script Generation**: Creates contextually accurate scripts based on uploaded documents
 - **Source Tracking**: Click any sentence to see its source document and supporting data
@@ -27,30 +46,29 @@ A fully functional, AI-powered application that analyzes financial documents and
 
 ### Prerequisites
 - Modern web browser (Chrome, Firefox, Safari, Edge)
-- OpenAI API key (required for AI functionality)
+- Anthropic API key (required for AI functionality)
 
 ### Installation
 1. Clone or download this repository
 2. Open `index.html` in your web browser
-3. Configure your OpenAI API key (see Configuration section)
+3. Configure your Anthropic API key (see Configuration section)
 
 ### Configuration
-1. **Get OpenAI API Key**: 
-   - Visit [OpenAI Platform](https://platform.openai.com/api-keys)
+1. **Get Anthropic API Key**: 
+   - Visit [Anthropic Console](https://console.anthropic.com/)
    - Create a new API key
-   - Copy the key (starts with `sk-`)
+   - Copy the key (starts with `sk-ant-`)
 
 2. **Configure API Key**:
-   - Edit `config.browser.js` in your project directory
-   - Replace `'sk-your-openai-api-key-here'` with your actual API key
-   - Save the file and refresh your browser
+   - Set the `ANTHROPIC_API_KEY` environment variable with your API key
+   - Or configure it in your server environment
    - The app will automatically load your configuration
 
 ## 📖 Usage
 
 ### Step 1: Configure API Key
-1. Edit `config.browser.js` and replace `'sk-your-openai-api-key-here'` with your actual OpenAI API key
-2. Save the file and refresh your browser
+1. Set the `ANTHROPIC_API_KEY` environment variable with your Anthropic API key
+2. Start the server with `npm start` or `node server/simple-server.js`
 3. Verify the API status shows "✅ API key configured and ready"
 
 ### Step 2: Upload Documents
@@ -83,7 +101,7 @@ A fully functional, AI-powered application that analyzes financial documents and
 ### AI Analysis Process
 1. **Text Extraction**: Converts documents to searchable text
 2. **Pattern Recognition**: Identifies financial data using regex patterns
-3. **AI Analysis**: GPT-4 analyzes content for business insights
+3. **AI Analysis**: Claude analyzes content for business insights
 4. **Data Consolidation**: Combines insights across multiple documents
 5. **Context Mapping**: Links script content to source documents
 
@@ -121,15 +139,15 @@ A fully functional, AI-powered application that analyzes financial documents and
 
 ### Architecture
 - **Frontend**: Vanilla JavaScript with modern ES6+ features
-- **AI Integration**: OpenAI GPT-4 API for document analysis and script generation
+- **AI Integration**: Anthropic Claude API for document analysis and script generation
 - **Document Processing**: PDF.js for PDF extraction, FileReader API for other formats
 - **Storage**: Local browser storage for API keys and session data
 
 ### API Usage
 - **Document Analysis**: ~1000-1500 tokens per document
 - **Script Generation**: ~2000-2500 tokens per script
-- **Model**: GPT-4 for best accuracy and financial understanding
-- **Rate Limits**: Subject to OpenAI API rate limits
+- **Model**: Claude for best accuracy and financial understanding
+- **Rate Limits**: Subject to Anthropic API rate limits
 
 ### Performance
 - **Processing Time**: 5-15 seconds per document depending on size
@@ -169,8 +187,8 @@ A fully functional, AI-powered application that analyzes financial documents and
 
 ### Common Issues
 1. **API Key Not Working**
-   - Verify key starts with `sk-`
-   - Check OpenAI account status and billing
+   - Verify key starts with `sk-ant-`
+   - Check Anthropic account status and billing
    - Ensure key has sufficient credits
 
 2. **Document Processing Fails**
@@ -238,7 +256,7 @@ This application is designed to assist with financial document analysis and scri
 ### Getting Help
 - **Documentation**: Review this README and inline code comments
 - **Console Logs**: Check browser console for detailed error information
-- **API Status**: Verify OpenAI API service status
+- **API Status**: Verify Anthropic API service status
 - **Community**: Check GitHub issues for known problems
 
 ### Contact
