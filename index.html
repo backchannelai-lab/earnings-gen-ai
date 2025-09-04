@@ -6,7 +6,7 @@
     <title>Earnings AI - Financial Analysis Assistant (RAG ENHANCED)</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="css/style.css?v=6" rel="stylesheet">
+    <link href="css/style.css?v=7" rel="stylesheet">
 </head>
 <body>
     <div class="flex h-screen bg-gray-50">
@@ -33,17 +33,17 @@
         <!-- Main Content Area - Notion-style Editor -->
         <main class="flex-1 flex flex-col bg-white">
             <!-- Editor Content -->
-            <div class="flex-1 px-20 py-12">
+            <div id="editorView" class="flex-1 px-8 py-8">
                 <!-- Save Button -->
                 <div class="flex justify-end mb-6">
-                    <button id="saveBtn" class="w-12 h-12 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center" title="Save Document" onclick="console.log('🔥 INLINE SAVE BUTTON CLICKED!'); if(window.simpleAI) { window.simpleAI.saveDocument(); } else { console.error('❌ SimpleAI not available'); }">
+                    <button id="saveBtn" class="w-12 h-12 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center" title="Save Document">
                         <i class="fas fa-save text-lg"></i>
                     </button>
                 </div>
                 
                 <!-- Title Input -->
-                <div class="mb-12">
-                    <input type="text" id="articleTitle" placeholder="Untitled" class="w-full text-6xl font-bold text-slate-900 border-none outline-none bg-transparent placeholder-slate-300 focus:placeholder-slate-200 transition-all duration-300" value="Earnings Analysis">
+                <div class="mb-8">
+                    <input type="text" id="articleTitle" placeholder="Untitled" class="w-full text-3xl font-bold text-slate-900 border-none outline-none bg-transparent placeholder-slate-300 focus:placeholder-slate-200 transition-all duration-300" value="Earnings Analysis">
                 </div>
                 
                 <!-- Main Editor -->
@@ -57,6 +57,37 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Folders View -->
+            <div id="foldersView" class="flex-1 bg-gray-50 hidden">
+                <!-- Apple-style Header -->
+                <div class="bg-white border-b border-gray-200 px-8 py-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <button onclick="switchToEditor()" class="mr-4 p-2 hover:bg-gray-100 rounded-full transition-colors">
+                                <i class="fas fa-arrow-left text-gray-600"></i>
+                            </button>
+                            <div>
+                                <h1 class="text-2xl font-semibold text-gray-900">Documents</h1>
+                                <p class="text-sm text-gray-500">Manage your saved documents</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button onclick="createNewFolder()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors">
+                                <i class="fas fa-plus mr-1"></i>
+                                New Folder
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Apple-style Folders Grid -->
+                <div class="p-8">
+                    <div id="foldersContent">
+                        <!-- Content will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
         </main>
 
 
@@ -64,7 +95,7 @@
 
 
         <!-- Right Sidebar Toggle Button - Clean chevron attached to sidebar -->
-        <div class="sidebar-toggle-container" style="position: fixed !important; top: 50% !important; right: 500px !important; transform: translateY(-50%) !important; z-index: 1000 !important;">
+        <div class="sidebar-toggle-container" style="position: fixed !important; top: 50% !important; right: 320px !important; transform: translateY(-50%) !important; z-index: 1000 !important;">
             <button id="sidebarToggleBtn" class="sidebar-toggle-btn" style="background: transparent !important; border: none !important; box-shadow: none !important; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;" title="Toggle sidebar (Ctrl+B)">
                 <i id="sidebarToggleIcon" class="fas fa-chevron-left" style="color: #64748b !important; font-size: 20px;"></i>
             </button>
@@ -73,7 +104,7 @@
 
 
         <!-- Right Sidebar - Context and Memory Only -->
-        <aside id="contextPanel" class="w-[500px] bg-white/95 backdrop-blur-sm border-l border-slate-200/50 flex flex-col shadow-2xl transition-all duration-300 ease-in-out" data-collapsed="false">
+        <aside id="contextPanel" class="w-80 bg-white/95 backdrop-blur-sm border-l border-slate-200/50 flex flex-col shadow-2xl transition-all duration-300 ease-in-out" data-collapsed="false">
             
             <!-- Tab Headers -->
             <div class="tab-headers flex border-b border-slate-200/50 bg-gradient-to-r from-slate-50 to-blue-50/30">
@@ -228,6 +259,1290 @@
     <script type="module" src="js/main.js"></script>
     <script src="js/modules/RAGAnalysisService.js"></script>
     <script>
+        // Immediate button initialization - don't wait for anything
+        console.log('🔍 IMMEDIATE: Setting up button handlers...');
+        
+        function setupButtons() {
+            console.log('🔍 SETUP: Initializing all buttons...');
+            
+            // Save Button - COMPLETELY OVERRIDE SimpleAI
+            const saveBtn = document.getElementById('saveBtn');
+            if (saveBtn) {
+                console.log('✅ SETUP: Save button found - COMPLETELY OVERRIDING SimpleAI');
+                
+                // Remove ALL existing event listeners
+                const newSaveBtn = saveBtn.cloneNode(true);
+                saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+                
+                // Add our own click handler
+                newSaveBtn.addEventListener('click', function(e) {
+                    console.log('🔥🔥🔥 OUR SAVE BUTTON CLICKED - NO SimpleAI INTERFERENCE! 🔥🔥🔥');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    
+                    // Call our custom save function directly
+                    console.log('🔥 Calling our custom saveDocument function');
+                    window.saveDocument();
+                });
+                
+                // Prevent any other handlers
+                newSaveBtn.addEventListener('mousedown', function(e) {
+                    e.stopPropagation();
+                });
+                
+            } else {
+                console.error('❌ Save button not found');
+            }
+            
+            // Settings Button
+            const settingsBtn = document.getElementById('settingsBtn');
+            if (settingsBtn) {
+                console.log('✅ SETUP: Settings button found');
+                settingsBtn.addEventListener('click', function() {
+                    console.log('🔥 SETTINGS BUTTON CLICKED!');
+                    alert('Settings panel would open here!');
+                });
+            }
+            
+            // Editor Button
+            const editorBtn = document.getElementById('editorBtn');
+            if (editorBtn) {
+                console.log('✅ SETUP: Editor button found');
+                editorBtn.addEventListener('click', function() {
+                    console.log('🔥 EDITOR BUTTON CLICKED!');
+                    const editor = document.getElementById('articleEditor');
+                    if (editor) {
+                        editor.focus();
+                        editor.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            }
+            
+            // Folder Button
+            const folderBtn = document.getElementById('folderBtn');
+            if (folderBtn) {
+                console.log('✅ SETUP: Folder button found');
+                folderBtn.addEventListener('click', function() {
+                    console.log('🔥 FOLDER BUTTON CLICKED!');
+                    switchToFolders();
+                });
+            }
+            
+            // Tab Headers
+            const contextTab = document.getElementById('contextTabHeader');
+            const knowledgeTab = document.getElementById('knowledgeTabHeader');
+            const draftsTab = document.getElementById('draftsTabHeader');
+            
+            if (contextTab) {
+                console.log('✅ SETUP: Context tab found');
+                contextTab.addEventListener('click', function() {
+                    console.log('🔥 CONTEXT TAB CLICKED!');
+                    switchTab('context');
+                });
+            }
+            
+            if (knowledgeTab) {
+                console.log('✅ SETUP: Knowledge tab found');
+                knowledgeTab.addEventListener('click', function() {
+                    console.log('🔥 KNOWLEDGE TAB CLICKED!');
+                    switchTab('knowledge');
+                    // Update file list when switching to memory tab
+                    updateFileList();
+                });
+            }
+            
+            if (draftsTab) {
+                console.log('✅ SETUP: Drafts tab found');
+                draftsTab.addEventListener('click', function() {
+                    console.log('🔥 DRAFTS TAB CLICKED!');
+                    switchTab('drafts');
+                    // Update drafts list when switching to drafts tab
+                    updateDraftsTab();
+                });
+            }
+            
+            // Floating Chat Button
+            const chatToggleBtn = document.getElementById('chatToggleBtn');
+            const chatInterface = document.getElementById('chatInterface');
+            const closeChatBtn = document.getElementById('closeChatBtn');
+            const chatIcon = document.getElementById('chatIcon');
+            
+            if (chatToggleBtn && chatInterface) {
+                console.log('✅ SETUP: Chat toggle button found');
+                chatToggleBtn.addEventListener('click', function() {
+                    console.log('🔥 CHAT TOGGLE CLICKED!');
+                    if (chatInterface.classList.contains('hidden')) {
+                        chatInterface.classList.remove('hidden');
+                        chatIcon.className = 'fas fa-times text-xl';
+                    } else {
+                        chatInterface.classList.add('hidden');
+                        chatIcon.className = 'fas fa-plus text-xl';
+                    }
+                });
+            }
+            
+            if (closeChatBtn && chatInterface) {
+                console.log('✅ SETUP: Close chat button found');
+                closeChatBtn.addEventListener('click', function() {
+                    console.log('🔥 CLOSE CHAT CLICKED!');
+                    chatInterface.classList.add('hidden');
+                    chatIcon.className = 'fas fa-plus text-xl';
+                });
+            }
+            
+            // Chat form submission
+            const chatPromptForm = document.getElementById('chatPromptForm');
+            const chatPromptInput = document.getElementById('chatPromptInput');
+            
+            if (chatPromptForm && chatPromptInput) {
+                console.log('✅ SETUP: Chat form found');
+                chatPromptForm.addEventListener('click', function() {
+                    console.log('🔥 CHAT FORM SUBMITTED!');
+                    const message = chatPromptInput.value.trim();
+                    if (message) {
+                        console.log('💬 Chat message:', message);
+                        // Add message to chat history
+                        const chatHistory = document.getElementById('chatHistory');
+                        const placeholder = document.getElementById('chatPlaceholder');
+                        if (placeholder) placeholder.remove();
+                        
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'mb-4 p-3 bg-blue-50 rounded-lg';
+                        messageDiv.innerHTML = `<p class="text-sm text-blue-800"><strong>You:</strong> ${message}</p>`;
+                        chatHistory.appendChild(messageDiv);
+                        
+                        // Clear input
+                        chatPromptInput.value = '';
+                        
+                        // Scroll to bottom
+                        chatHistory.scrollTop = chatHistory.scrollHeight;
+                    }
+                });
+                
+                // Also handle Enter key
+                chatPromptInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        chatPromptForm.click();
+                    }
+                });
+            }
+            
+            // File Upload Functionality
+            const fileUploadBox = document.getElementById('fileUploadBox');
+            const fileInput = document.getElementById('fileInput');
+            const fileList = document.getElementById('fileList');
+            
+            if (fileUploadBox && fileInput) {
+                console.log('✅ SETUP: File upload elements found');
+                
+                // Click to upload
+                fileUploadBox.addEventListener('click', function() {
+                    console.log('🔥 FILE UPLOAD BOX CLICKED!');
+                    fileInput.click();
+                });
+                
+                // Handle file selection
+                fileInput.addEventListener('change', function(e) {
+                    console.log('🔥 FILES SELECTED!');
+                    const files = Array.from(e.target.files);
+                    console.log('📁 Files:', files);
+                    
+                    files.forEach(file => {
+                        console.log('📄 Processing file:', file.name, file.type, file.size);
+                        handleFileUpload(file);
+                    });
+                    
+                    // Clear the input so the same file can be selected again
+                    e.target.value = '';
+                });
+                
+                // Drag and drop functionality
+                fileUploadBox.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    fileUploadBox.classList.add('border-blue-400', 'bg-blue-50');
+                });
+                
+                fileUploadBox.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    fileUploadBox.classList.remove('border-blue-400', 'bg-blue-50');
+                });
+                
+                fileUploadBox.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    fileUploadBox.classList.remove('border-blue-400', 'bg-blue-50');
+                    
+                    const files = Array.from(e.dataTransfer.files);
+                    console.log('📁 Dropped files:', files);
+                    
+                    files.forEach(file => {
+                        console.log('📄 Processing dropped file:', file.name);
+                        handleFileUpload(file);
+                    });
+                });
+            }
+            
+            console.log('✅ SETUP: All buttons initialized!');
+        }
+        
+        function handleFileUpload(file) {
+            console.log('📄 HANDLING FILE UPLOAD:', file.name);
+            
+            // Validate file type
+            const allowedTypes = [
+                'application/pdf',
+                'text/plain',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/msword',
+                'text/csv',
+                'application/json'
+            ];
+            
+            if (!allowedTypes.includes(file.type) && !file.name.match(/\.(pdf|txt|doc|docx|csv|json)$/i)) {
+                alert(`File type not supported: ${file.type}\nSupported types: PDF, TXT, DOC, DOCX, CSV, JSON`);
+                return;
+            }
+            
+            // Check file size (10MB limit)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File too large. Maximum size is 10MB.');
+                return;
+            }
+            
+            // Show loading state
+            const fileList = document.getElementById('fileList');
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'flex items-center p-3 bg-yellow-50 border border-yellow-200 rounded-lg mb-3';
+            loadingDiv.innerHTML = `
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-600 mr-3"></div>
+                <div>
+                    <p class="text-sm font-medium text-yellow-800">Processing ${file.name}...</p>
+                    <p class="text-xs text-yellow-600">Extracting text content...</p>
+                </div>
+            `;
+            fileList.appendChild(loadingDiv);
+            
+            // Process the file
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                console.log('📄 File read successfully');
+                
+                let content = '';
+                let processed = false;
+                
+                if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+                    content = e.target.result;
+                    processed = true;
+                } else if (file.type === 'application/json' || file.name.endsWith('.json')) {
+                    try {
+                        const jsonData = JSON.parse(e.target.result);
+                        content = JSON.stringify(jsonData, null, 2);
+                        processed = true;
+                    } catch (error) {
+                        console.error('JSON parse error:', error);
+                        content = e.target.result;
+                        processed = true;
+                    }
+                } else if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+                    content = e.target.result;
+                    processed = true;
+                } else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                    // For PDFs, we'll use a simple text extraction
+                    // In a real implementation, you'd use PDF.js
+                    content = `PDF file: ${file.name}\n\nNote: PDF text extraction requires PDF.js library. This is a placeholder for the actual PDF content.`;
+                    processed = true;
+                } else {
+                    content = `Document: ${file.name}\n\nNote: This file type requires specialized processing. Content extraction may be limited.`;
+                    processed = true;
+                }
+                
+                // Store the document
+                const document = {
+                    id: Date.now().toString(),
+                    name: file.name,
+                    type: file.type,
+                    size: file.size,
+                    content: content,
+                    processed: processed,
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Save to localStorage
+                const existingDocs = JSON.parse(localStorage.getItem('earningsGenAI_documents') || '[]');
+                existingDocs.push(document);
+                localStorage.setItem('earningsGenAI_documents', JSON.stringify(existingDocs));
+                
+                // Update the file list
+                updateFileList();
+                
+                // Remove loading state
+                loadingDiv.remove();
+                
+                // Show success message
+                const successDiv = document.createElement('div');
+                successDiv.className = 'flex items-center p-3 bg-green-50 border border-green-200 rounded-lg mb-3';
+                successDiv.innerHTML = `
+                    <div class="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
+                    <div>
+                        <p class="text-sm font-medium text-green-800">Successfully processed ${file.name}</p>
+                        <p class="text-xs text-green-600">Document added to memory base</p>
+                    </div>
+                `;
+                fileList.appendChild(successDiv);
+                
+                // Remove success message after 3 seconds
+                setTimeout(() => {
+                    successDiv.remove();
+                }, 3000);
+                
+                console.log('✅ Document saved:', document);
+            };
+            
+            reader.onerror = function() {
+                console.error('❌ File read error');
+                loadingDiv.remove();
+                alert('Error reading file. Please try again.');
+            };
+            
+            // Start reading the file
+            if (file.type === 'text/plain' || file.name.endsWith('.txt') || 
+                file.type === 'application/json' || file.name.endsWith('.json') ||
+                file.type === 'text/csv' || file.name.endsWith('.csv')) {
+                reader.readAsText(file);
+            } else {
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            const existingDocs = JSON.parse(localStorage.getItem('earningsGenAI_documents') || '[]');
+            
+            // Clear existing file list items (but keep upload area)
+            const existingItems = fileList.querySelectorAll('.file-item');
+            existingItems.forEach(item => item.remove());
+            
+            if (existingDocs.length === 0) {
+                return;
+            }
+            
+            // Add each document
+            existingDocs.forEach((doc, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg mb-2';
+                fileItem.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-file text-blue-600 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-slate-800">${doc.name}</p>
+                            <p class="text-xs text-slate-500">${(doc.size / 1024).toFixed(1)} KB • ${new Date(doc.timestamp).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                    <button onclick="removeDocument(${index})" class="text-red-500 hover:text-red-700 transition-colors">
+                        <i class="fas fa-trash text-sm"></i>
+                    </button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+        
+        // Global function to remove documents
+        window.removeDocument = function(index) {
+            const existingDocs = JSON.parse(localStorage.getItem('earningsGenAI_documents') || '[]');
+            if (index >= 0 && index < existingDocs.length) {
+                const removed = existingDocs.splice(index, 1)[0];
+                localStorage.setItem('earningsGenAI_documents', JSON.stringify(existingDocs));
+                updateFileList();
+                console.log('🗑️ Removed document:', removed.name);
+            }
+        };
+        
+        // Save document function with folder selection - COMPLETELY OVERRIDES SimpleAI
+        window.saveDocument = async function() {
+            console.log('💾💾💾 OUR CUSTOM SAVE FUNCTION CALLED - COMPLETELY OVERRIDING SimpleAI! 💾💾💾');
+            
+            // AGGRESSIVELY remove SimpleAI saveDocument method
+            if (window.simpleAI) {
+                console.log('🗑️ Completely removing SimpleAI saveDocument method');
+                window.simpleAI.saveDocument = null;
+                delete window.simpleAI.saveDocument;
+            }
+            
+            // Also override any other save methods
+            if (window.testSave) {
+                window.testSave = function() {
+                    console.log('🧪 Test save redirected to our function');
+                    window.saveDocument();
+                };
+            }
+            
+            const title = document.getElementById('articleTitle').value || 'Untitled';
+            const content = document.getElementById('articleEditor').innerHTML;
+            
+            if (!content || content.trim() === '' || content === '<p><br></p>') {
+                showNotification('Cannot save empty document', 'warning');
+                return;
+            }
+            
+            // Show folder selection modal
+            const folderName = await showFolderSelectionModal();
+            if (!folderName || folderName.trim() === '') {
+                showNotification('Save cancelled - no folder specified', 'warning');
+                return;
+            }
+            
+            const doc = {
+                id: Date.now().toString(),
+                title: title,
+                content: content,
+                folder: folderName.trim(),
+                timestamp: new Date().toISOString(),
+                wordCount: content.replace(/<[^>]*>/g, '').split(/\s+/).length
+            };
+            
+            try {
+                const saved = JSON.parse(localStorage.getItem('earningsGenAI_savedDocuments') || '[]');
+                saved.push(doc);
+                localStorage.setItem('earningsGenAI_savedDocuments', JSON.stringify(saved));
+                
+                console.log('✅ Document saved successfully:', doc);
+                showNotification(`Document "${title}" saved to folder "${folderName}"!`, 'success');
+                
+                // Update drafts tab if it's visible
+                if (document.getElementById('draftsContent') && !document.getElementById('draftsContent').classList.contains('hidden')) {
+                    updateDraftsTab();
+                }
+                
+            } catch (error) {
+                console.error('❌ Error saving document:', error);
+                showNotification('Error saving document. Please try again.', 'error');
+            }
+        }
+        
+        // Folder selection modal
+        window.showFolderSelectionModal = function() {
+            return new Promise((resolve) => {
+                // Get existing folders
+                const saved = JSON.parse(localStorage.getItem('earningsGenAI_savedDocuments') || '[]');
+                const existingFolders = [...new Set(saved.map(doc => doc.folder).filter(Boolean))];
+                
+                // Create modal
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+                modal.innerHTML = `
+                    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden">
+                        <!-- Header -->
+                        <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-folder-plus text-white"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-semibold text-gray-800">Save Document</h2>
+                                    <p class="text-sm text-gray-500">Choose a folder to save to</p>
+                                </div>
+                            </div>
+                            <button onclick="this.closest('.fixed').remove(); resolve(null)" class="text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-100 rounded-lg">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="p-6">
+                            <!-- Create New Folder -->
+                            <div class="mb-6">
+                                <h3 class="text-sm font-medium text-gray-700 mb-3">Create New Folder</h3>
+                                <div class="flex space-x-2">
+                                    <input type="text" id="newFolderName" placeholder="Enter folder name..." 
+                                           class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <button onclick="createNewFolderFromModal()" 
+                                            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors">
+                                        <i class="fas fa-plus mr-1"></i>
+                                        Create
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Existing Folders -->
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-700 mb-3">Existing Folders</h3>
+                                ${existingFolders.length > 0 ? `
+                                    <div class="space-y-2 max-h-48 overflow-y-auto">
+                                        ${existingFolders.map(folder => `
+                                            <button onclick="selectExistingFolder('${folder}')" 
+                                                    class="w-full flex items-center p-3 text-left hover:bg-gray-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors">
+                                                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+                                                    <i class="fas fa-folder text-white text-sm"></i>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <div class="font-medium text-gray-800">${folder}</div>
+                                                    <div class="text-sm text-gray-500">${saved.filter(doc => doc.folder === folder).length} documents</div>
+                                                </div>
+                                                <i class="fas fa-chevron-right text-gray-400"></i>
+                                            </button>
+                                        `).join('')}
+                                    </div>
+                                ` : `
+                                    <div class="text-center py-8 text-gray-500">
+                                        <i class="fas fa-folder-open text-3xl mb-2"></i>
+                                        <p>No folders yet</p>
+                                        <p class="text-sm">Create your first folder above</p>
+                                    </div>
+                                `}
+                            </div>
+                        </div>
+                        
+                        <!-- Footer -->
+                        <div class="flex justify-end space-x-3 p-6 border-t border-gray-200">
+                            <button onclick="this.closest('.fixed').remove(); resolve(null)" 
+                                    class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Add to page
+                document.body.appendChild(modal);
+                
+                // Focus on input
+                setTimeout(() => {
+                    const input = modal.querySelector('#newFolderName');
+                    if (input) input.focus();
+                }, 100);
+                
+                // Close modal when clicking outside
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.remove();
+                        resolve(null);
+                    }
+                });
+                
+                // Handle Enter key in input
+                modal.querySelector('#newFolderName').addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        createNewFolderFromModal();
+                    }
+                });
+                
+                // Store resolve function for use in button handlers
+                window._folderModalResolve = resolve;
+                window._folderModal = modal;
+            });
+        };
+        
+        // Helper functions for the modal
+        window.createNewFolderFromModal = function() {
+            const input = document.getElementById('newFolderName');
+            const folderName = input.value.trim();
+            
+            if (!folderName) {
+                showNotification('Please enter a folder name', 'warning');
+                return;
+            }
+            
+            // Close modal and resolve with folder name
+            if (window._folderModal) {
+                window._folderModal.remove();
+            }
+            if (window._folderModalResolve) {
+                window._folderModalResolve(folderName);
+            }
+        };
+        
+        window.selectExistingFolder = function(folderName) {
+            // Close modal and resolve with folder name
+            if (window._folderModal) {
+                window._folderModal.remove();
+            }
+            if (window._folderModalResolve) {
+                window._folderModalResolve(folderName);
+            }
+        };
+        
+        // Notification system
+        window.showNotification = function(message, type = 'info') {
+            // Remove any existing notifications
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notif => notif.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = `notification fixed top-6 right-6 z-50 max-w-md transition-all duration-300 ease-in-out`;
+            
+            let bgColor = 'bg-blue-50 border-blue-200';
+            let textColor = 'text-blue-800';
+            let iconColor = 'text-blue-500';
+            let icon = 'fas fa-info-circle';
+            let buttonColor = 'bg-blue-500 hover:bg-blue-600';
+            
+            switch (type) {
+                case 'success':
+                    bgColor = 'bg-green-50 border-green-200';
+                    textColor = 'text-green-800';
+                    iconColor = 'text-green-500';
+                    icon = 'fas fa-check-circle';
+                    buttonColor = 'bg-green-500 hover:bg-green-600';
+                    break;
+                case 'warning':
+                    bgColor = 'bg-yellow-50 border-yellow-200';
+                    textColor = 'text-yellow-800';
+                    iconColor = 'text-yellow-500';
+                    icon = 'fas fa-exclamation-triangle';
+                    buttonColor = 'bg-yellow-500 hover:bg-yellow-600';
+                    break;
+                case 'error':
+                    bgColor = 'bg-red-50 border-red-200';
+                    textColor = 'text-red-800';
+                    iconColor = 'text-red-500';
+                    icon = 'fas fa-times-circle';
+                    buttonColor = 'bg-red-500 hover:bg-red-600';
+                    break;
+            }
+            
+            notification.innerHTML = `
+                <div class="${bgColor} border rounded-xl shadow-lg p-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="${icon} ${iconColor} text-lg"></i>
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <p class="${textColor} text-sm font-medium leading-5">${message}</p>
+                        </div>
+                        <div class="ml-4 flex-shrink-0 flex">
+                            <button onclick="this.closest('.notification').remove()" class="inline-flex text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition ease-in-out duration-150">
+                                <i class="fas fa-times text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex justify-end">
+                        <button onclick="this.closest('.notification').remove()" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white ${buttonColor} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition ease-in-out duration-150">
+                            OK
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Set initial position (off-screen)
+            notification.style.transform = 'translateX(100%)';
+            notification.style.opacity = '0';
+            
+            // Add to page
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+                notification.style.opacity = '1';
+            }, 10);
+            
+            // Auto remove after 5 seconds (increased from 4)
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.style.transform = 'translateX(100%)';
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        if (notification.parentElement) {
+                            notification.remove();
+                        }
+                    }, 300);
+                }
+            }, 5000);
+        }
+        
+        // Update drafts tab
+        function updateDraftsTab() {
+            const draftsContent = document.getElementById('draftsContent');
+            if (!draftsContent) return;
+            
+            const saved = JSON.parse(localStorage.getItem('earningsGenAI_savedDocuments') || '[]');
+            
+            if (saved.length === 0) {
+                draftsContent.innerHTML = `
+                    <div class="text-center py-12 text-slate-600">
+                        <div class="w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                            <i class="fas fa-file-alt text-3xl text-purple-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-slate-800 mb-3">Your Drafts</h3>
+                        <p class="text-sm text-slate-600">Saved documents will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <div class="p-6">
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4">Saved Drafts (${saved.length})</h3>
+                    </div>
+                    <div class="space-y-3">
+            `;
+            
+            saved.reverse().forEach((doc, index) => {
+                const date = new Date(doc.timestamp).toLocaleDateString();
+                const time = new Date(doc.timestamp).toLocaleTimeString();
+                const wordCount = doc.wordCount || 0;
+                
+                html += `
+                    <div class="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer" onclick="loadDraft('${doc.id}')">
+                        <div class="flex items-center flex-1">
+                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-file-alt text-purple-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-medium text-slate-800 mb-1">${doc.title}</h4>
+                                <p class="text-sm text-slate-500">${wordCount} words • ${date} at ${time}</p>
+                            </div>
+                        </div>
+                        <button onclick="event.stopPropagation(); deleteDraft('${doc.id}')" class="text-red-500 hover:text-red-700 transition-colors ml-3">
+                            <i class="fas fa-trash text-sm"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                </div>
+            `;
+            
+            draftsContent.innerHTML = html;
+        }
+        
+        // Load draft function
+        window.loadDraft = function(docId) {
+            const saved = JSON.parse(localStorage.getItem('earningsGenAI_savedDocuments') || '[]');
+            const doc = saved.find(d => d.id === docId);
+            
+            if (doc) {
+                document.getElementById('articleTitle').value = doc.title;
+                document.getElementById('articleEditor').innerHTML = doc.content;
+                showNotification(`Loaded "${doc.title}"`, 'success');
+                console.log('📄 Loaded draft:', doc.title);
+            }
+        };
+        
+        // Delete draft function
+        window.deleteDraft = function(docId) {
+            if (confirm('Are you sure you want to delete this draft?')) {
+                const saved = JSON.parse(localStorage.getItem('earningsGenAI_savedDocuments') || '[]');
+                const filtered = saved.filter(d => d.id !== docId);
+                localStorage.setItem('earningsGenAI_savedDocuments', JSON.stringify(filtered));
+                updateDraftsTab();
+                showNotification('Draft deleted', 'success');
+                console.log('🗑️ Deleted draft:', docId);
+            }
+        };
+        
+        // View switching functions
+        function switchToFolders() {
+            console.log('🔄 SWITCHING TO FOLDERS VIEW');
+            document.getElementById('editorView').classList.add('hidden');
+            document.getElementById('foldersView').classList.remove('hidden');
+            updateFoldersView();
+        }
+        
+        function switchToEditor() {
+            console.log('🔄 SWITCHING TO EDITOR VIEW');
+            document.getElementById('foldersView').classList.add('hidden');
+            document.getElementById('editorView').classList.remove('hidden');
+        }
+        
+        // Update folders view with Apple-style design
+        function updateFoldersView() {
+            const saved = JSON.parse(localStorage.getItem('earningsGenAI_savedDocuments') || '[]');
+            const foldersContent = document.getElementById('foldersContent');
+            
+            // Group documents by folder
+            const folders = {};
+            saved.forEach(doc => {
+                const folder = doc.folder || 'Unorganized';
+                if (!folders[folder]) {
+                    folders[folder] = [];
+                }
+                folders[folder].push(doc);
+            });
+            
+            if (Object.keys(folders).length === 0) {
+                foldersContent.innerHTML = `
+                    <div class="text-center py-20">
+                        <div class="w-32 h-32 bg-gradient-to-br from-blue-100 to-blue-200 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-lg">
+                            <i class="fas fa-folder-open text-5xl text-blue-500"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-gray-700 mb-3">No documents yet</h3>
+                        <p class="text-gray-500 mb-8 max-w-md mx-auto">Create and save your first document to get started. Your documents will be organized in folders here.</p>
+                        <button onclick="switchToEditor()" class="px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-all duration-200 hover:shadow-lg">
+                            <i class="fas fa-plus mr-2"></i>
+                            Create New Document
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Compact folder grid
+            let html = `
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                    ${Object.entries(folders).map(([folderName, docs]) => `
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 p-4 text-center group cursor-pointer" onclick="openLatestDraft(\`${folderName}\`)">
+                            <!-- Compact Folder Icon -->
+                            <div class="relative mb-3">
+                                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-sm mx-auto">
+                                    <i class="fas fa-folder text-white text-2xl"></i>
+                                </div>
+                                <!-- Action buttons on hover -->
+                                <div class="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div class="flex space-x-1">
+                                        <button onclick="event.stopPropagation(); showFolderDetails(\`${folderName}\`)" class="w-6 h-6 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-gray-50" title="View all documents">
+                                            <i class="fas fa-list text-xs"></i>
+                                        </button>
+                                        <button onclick="event.stopPropagation(); deleteFolder(\`${folderName}\`)" class="w-6 h-6 bg-white rounded-full shadow-sm flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-50" title="Delete folder">
+                                            <i class="fas fa-trash text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Folder Title -->
+                            <div class="px-1">
+                                <h3 class="font-medium text-gray-900 text-sm mb-1 px-2 py-1 rounded hover:bg-gray-50 transition-colors cursor-pointer break-words" 
+                                    onclick="event.stopPropagation(); editFolderTitle(\`${folderName}\`, this)" 
+                                    title="Click to edit">${folderName}</h3>
+                                <p class="text-xs text-gray-500">${docs.length} doc${docs.length !== 1 ? 's' : ''}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <!-- Stats Footer -->
+                <div class="mt-12 bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-8">
+                            <div class="text-center">
+                                <div class="text-2xl font-semibold text-gray-900">${saved.length}</div>
+                                <div class="text-sm text-gray-500">Total Documents</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-semibold text-gray-900">${Object.keys(folders).length}</div>
+                                <div class="text-sm text-gray-500">Folders</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-semibold text-gray-900">${(JSON.stringify(saved).length / 1024).toFixed(1)} KB</div>
+                                <div class="text-sm text-gray-500">Storage Used</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            foldersContent.innerHTML = html;
+        }
+        
+        // Delete folder function with beautiful confirmation modal
+        window.deleteFolder = function(folderName) {
+            // Get document count for this folder
+            const saved = JSON.parse(localStorage.getItem('earningsGenAI_savedDocuments') || '[]');
+            let folderDocs;
+            
+            // Special handling for "Unorganized" folder
+            if (folderName === 'Unorganized') {
+                folderDocs = saved.filter(doc => !doc.folder || doc.folder === 'Unorganized');
+            } else {
+                folderDocs = saved.filter(doc => doc.folder === folderName);
+            }
+            
+            const docCount = folderDocs.length;
+            
+            // Create confirmation modal
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="bg-white rounded-2xl shadow-xl max-w-md w-full">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center mr-4">
+                                <i class="fas fa-exclamation-triangle text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-semibold text-gray-800">Delete Folder</h2>
+                                <p class="text-sm text-gray-500">This action cannot be undone</p>
+                            </div>
+                        </div>
+                        <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="p-6">
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-folder text-red-500"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-medium text-gray-800 mb-2">Delete "${folderName}"?</h3>
+                                <p class="text-gray-600 mb-4">
+                                    This will permanently delete the folder and all ${docCount} document${docCount !== 1 ? 's' : ''} inside it.
+                                </p>
+                                <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                                        <span class="text-sm text-red-700 font-medium">This action cannot be undone</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div class="flex justify-end space-x-3 p-6 border-t border-gray-200">
+                        <button onclick="this.closest('.fixed').remove()" 
+                                class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium transition-colors">
+                            Cancel
+                        </button>
+                        <button onclick="confirmDeleteFolder('${folderName}')" 
+                                class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors">
+                            <i class="fas fa-trash mr-2"></i>
+                            Delete Folder
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Add to page
+            document.body.appendChild(modal);
+            
+            // Close modal when clicking outside
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+            
+            // Store folder name for confirmation
+            window._folderToDelete = folderName;
+            window._deleteModal = modal;
+        };
+        
+        // Confirm delete function
+        window.confirmDeleteFolder = function(folderName) {
+            const saved = JSON.parse(localStorage.getItem('earningsGenAI_savedDocuments') || '[]');
+            
+            // Special handling for "Unorganized" folder
+            if (folderName === 'Unorganized') {
+                // For "Unorganized", we need to delete documents that have no folder OR have "Unorganized" as folder
+                const filtered = saved.filter(doc => {
+                    // Keep documents that have a real folder (not null, undefined, or "Unorganized")
+                    return doc.folder && doc.folder !== 'Unorganized';
+                });
+                localStorage.setItem('earningsGenAI_savedDocuments', JSON.stringify(filtered));
+            } else {
+                // For regular folders, just filter out documents with that folder
+                const filtered = saved.filter(doc => doc.folder !== folderName);
+                localStorage.setItem('earningsGenAI_savedDocuments', JSON.stringify(filtered));
+            }
+            
+            // Close modal
+            if (window._deleteModal) {
+                window._deleteModal.remove();
+            }
+            
+            // Show success notification
+            showNotification(`Folder "${folderName}" and all its documents have been deleted`, 'success');
+            
+            // Refresh the folders view
+            updateFoldersView();
+        };
+        
+        // Load draft and return to editor
+        window.loadDraftAndReturn = function(docId) {
+            const saved = JSON.parse(localStorage.getItem('earningsGenAI_savedDocuments') || '[]');
+            const doc = saved.find(d => d.id === docId);
+            
+            if (doc) {
+                document.getElementById('articleTitle').value = doc.title;
+                document.getElementById('articleEditor').innerHTML = doc.content;
+                showNotification(`Loaded "${doc.title}"`, 'success');
+                switchToEditor();
+                console.log('📄 Loaded draft:', doc.title);
+            }
+        };
+        
+        // Rename document function
+        window.renameDocument = function(docId) {
+            const saved = JSON.parse(localStorage.getItem('earningsGenAI_savedDocuments') || '[]');
+            const doc = saved.find(d => d.id === docId);
+            
+            if (doc) {
+                const newTitle = prompt('Enter new title:', doc.title);
+                if (newTitle && newTitle.trim() !== '' && newTitle !== doc.title) {
+                    doc.title = newTitle.trim();
+                    localStorage.setItem('earningsGenAI_savedDocuments', JSON.stringify(saved));
+                    showNotification(`Document renamed to "${newTitle}"`, 'success');
+                    updateFoldersView();
+                }
+            }
+        };
+        
+        // Create new folder function
+        window.createNewFolder = function() {
+            const folderName = prompt('Enter folder name:', 'New Folder');
+            if (folderName && folderName.trim() !== '') {
+                showNotification(`Folder "${folderName}" created`, 'success');
+                // Folders are created automatically when documents are saved to them
+            }
+        };
+        
+        // Rename folder function
+        window.renameFolder = function(oldFolderName) {
+            const newFolderName = prompt('Enter new folder name:', oldFolderName);
+            if (newFolderName && newFolderName.trim() !== '' && newFolderName !== oldFolderName) {
+                const saved = JSON.parse(localStorage.getItem('earningsGenAI_savedDocuments') || '[]');
+                saved.forEach(doc => {
+                    if (doc.folder === oldFolderName) {
+                        doc.folder = newFolderName.trim();
+                    }
+                });
+                localStorage.setItem('earningsGenAI_savedDocuments', JSON.stringify(saved));
+                showNotification(`Folder renamed to "${newFolderName}"`, 'success');
+                updateFoldersView();
+            }
+        };
+        
+        // Open latest draft from folder
+        window.openLatestDraft = function(folderName) {
+            console.log('🔍 Opening latest draft for folder:', folderName);
+            const saved = JSON.parse(localStorage.getItem('earningsGenAI_savedDocuments') || '[]');
+            console.log('📚 All saved documents:', saved);
+            
+            // Debug: Show all unique folder names
+            const allFolders = [...new Set(saved.map(doc => doc.folder))];
+            console.log('📂 All unique folder names:', allFolders);
+            
+            const folderDocs = saved.filter(doc => doc.folder === folderName);
+            console.log('📁 Documents in folder:', folderDocs);
+            
+            if (folderDocs.length === 0) {
+                // Try to find documents with similar folder names (case-insensitive)
+                const similarDocs = saved.filter(doc => 
+                    doc.folder && doc.folder.toLowerCase() === folderName.toLowerCase()
+                );
+                console.log('🔍 Similar folder names found:', similarDocs);
+                
+                if (similarDocs.length > 0) {
+                    const latestDoc = similarDocs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+                    console.log('📄 Latest document from similar folder:', latestDoc);
+                    loadDraftAndReturn(latestDoc.id);
+                    showNotification(`Opened latest document: "${latestDoc.title}"`, 'success');
+                    return;
+                }
+                
+                showNotification('No documents in this folder', 'error');
+                return;
+            }
+            
+            // Sort by timestamp (newest first) and get the latest
+            const latestDoc = folderDocs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+            console.log('📄 Latest document:', latestDoc);
+            
+            // Load the document and switch to editor
+            loadDraftAndReturn(latestDoc.id);
+            showNotification(`Opened latest document: "${latestDoc.title}"`, 'success');
+        };
+        
+        // Inline edit folder title function
+        window.editFolderTitle = function(folderName, element) {
+            const currentTitle = element.textContent;
+            
+            // Create input field
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentTitle;
+            input.className = 'w-full text-sm font-medium text-gray-900 bg-white border border-blue-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent';
+            input.style.minWidth = '80px';
+            input.style.maxWidth = '100%';
+            input.style.wordWrap = 'break-word';
+            
+            // Replace the title with input
+            element.innerHTML = '';
+            element.appendChild(input);
+            input.focus();
+            input.select();
+            
+            // Handle save on Enter or blur
+            const saveEdit = () => {
+                const newTitle = input.value.trim();
+                if (newTitle && newTitle !== currentTitle) {
+                    // Update localStorage
+                    const saved = JSON.parse(localStorage.getItem('earningsGenAI_savedDocuments') || '[]');
+                    saved.forEach(doc => {
+                        if (doc.folder === folderName) {
+                            doc.folder = newTitle;
+                        }
+                    });
+                    localStorage.setItem('earningsGenAI_savedDocuments', JSON.stringify(saved));
+                    showNotification(`Folder renamed to "${newTitle}"`, 'success');
+                    updateFoldersView();
+                } else {
+                    // Restore original title
+                    element.textContent = currentTitle;
+                    element.className = 'font-medium text-gray-900 text-sm mb-1 px-2 py-1 rounded hover:bg-gray-50 transition-colors cursor-pointer';
+                    element.setAttribute('onclick', `event.stopPropagation(); editFolderTitle('${folderName}', this)`);
+                    element.setAttribute('title', 'Click to edit');
+                }
+            };
+            
+            // Handle cancel on Escape
+            const cancelEdit = () => {
+                element.textContent = currentTitle;
+                element.className = 'font-medium text-gray-900 text-sm mb-1 px-2 py-1 rounded hover:bg-gray-50 transition-colors cursor-pointer';
+                element.setAttribute('onclick', `event.stopPropagation(); editFolderTitle('${folderName}', this)`);
+                element.setAttribute('title', 'Click to edit');
+            };
+            
+            input.addEventListener('blur', saveEdit);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveEdit();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    cancelEdit();
+                }
+            });
+        };
+        
+        // Show folder details function
+        window.showFolderDetails = function(folderName) {
+            const saved = JSON.parse(localStorage.getItem('earningsGenAI_savedDocuments') || '[]');
+            const docs = saved.filter(doc => doc.folder === folderName);
+            
+            // Create a modal to show all documents in the folder
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+                    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4">
+                                <i class="fas fa-folder text-white"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-semibold text-gray-800">${folderName}</h2>
+                                <p class="text-sm text-gray-500">${docs.length} documents</p>
+                            </div>
+                        </div>
+                        <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="p-6 overflow-y-auto max-h-[60vh]">
+                        <div class="space-y-3">
+                            ${docs.map(doc => `
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                    <div class="flex items-center flex-1 cursor-pointer" onclick="loadDraftAndReturn('${doc.id}'); this.closest('.fixed').remove();">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                                            <i class="fas fa-file-alt text-blue-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-gray-800 mb-1">${doc.title}</h4>
+                                            <p class="text-sm text-gray-500">${doc.wordCount || 0} words • ${new Date(doc.timestamp).toLocaleDateString()}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button onclick="event.stopPropagation(); renameDocument('${doc.id}')" class="text-gray-500 hover:text-gray-700 p-2 rounded hover:bg-gray-200 transition-colors" title="Rename">
+                                            <i class="fas fa-edit text-sm"></i>
+                                        </button>
+                                        <button onclick="event.stopPropagation(); deleteDraft('${doc.id}')" class="text-red-500 hover:text-red-700 p-2 rounded hover:bg-red-50 transition-colors" title="Delete">
+                                            <i class="fas fa-trash text-sm"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close modal when clicking outside
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        };
+        
+        function switchTab(tabName) {
+            console.log('🔄 SWITCHING TO TAB:', tabName);
+            
+            // Hide all content
+            const contents = ['contextContent', 'knowledgeContent', 'draftsContent'];
+            contents.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            
+            // Remove active state from all headers
+            const headers = ['contextTabHeader', 'knowledgeTabHeader', 'draftsTabHeader'];
+            headers.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.remove('text-blue-700', 'border-blue-500', 'bg-blue-50/80');
+                    el.classList.add('text-slate-600', 'border-transparent');
+                }
+            });
+            
+            // Show selected content and activate header
+            const contentId = tabName + 'Content';
+            const headerId = tabName + 'TabHeader';
+            
+            const content = document.getElementById(contentId);
+            const header = document.getElementById(headerId);
+            
+            if (content) {
+                content.classList.remove('hidden');
+                console.log('✅ SHOWING:', contentId);
+            }
+            
+            if (header) {
+                header.classList.remove('text-slate-600', 'border-transparent');
+                header.classList.add('text-blue-700', 'border-blue-500', 'bg-blue-50/80');
+                console.log('✅ ACTIVATING:', headerId);
+            }
+        }
+        
+        // Run immediately when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupButtons);
+        } else {
+            setupButtons();
+        }
+        
+        // Also run after a short delay to catch any late-loading elements
+        setTimeout(setupButtons, 500);
+        setTimeout(setupButtons, 1000);
+        
+        // FINAL OVERRIDE - Make sure our save function is the only one
+        setTimeout(function() {
+            console.log('🔒 FINAL OVERRIDE: Ensuring our save function is the only one');
+            if (window.simpleAI) {
+                window.simpleAI.saveDocument = function() {
+                    console.log('🚫 SimpleAI saveDocument blocked - redirecting to our function');
+                    window.saveDocument();
+                };
+            }
+        }, 2000);
+    </script>
+    <script>
         // Force correct positioning and styling with sidebar movement
         document.addEventListener('DOMContentLoaded', function() {
             const container = document.querySelector('.sidebar-toggle-container');
@@ -249,8 +1564,8 @@
                         }
                     } else {
                         // Force move closer to sidebar when expanded
-                        container.style.setProperty('right', '500px', 'important');
-                        console.log('🔄 BUTTON: Moving to sidebar (500px) with !important');
+                        container.style.setProperty('right', '320px', 'important');
+                        console.log('🔄 BUTTON: Moving to sidebar (320px) with !important');
                         // Update icon direction when expanded
                         if (icon) {
                             icon.className = 'fas fa-chevron-left';
@@ -285,8 +1600,8 @@
                             container.style.setProperty('right', '24px', 'important');
                             console.log('🔄 DIRECT: Moved button to 24px (collapsed)');
                         } else {
-                            container.style.setProperty('right', '500px', 'important');
-                            console.log('🔄 DIRECT: Moved button to 500px (expanded)');
+                            container.style.setProperty('right', '320px', 'important');
+                            console.log('🔄 DIRECT: Moved button to 320px (expanded)');
                         }
                     }, 50); // Small delay to let the sidebar update first
                 });
