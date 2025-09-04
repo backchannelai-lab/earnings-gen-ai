@@ -394,6 +394,66 @@
             // Chat form submission - Let SimpleAI handle this
             console.log('✅ SETUP: Chat form will be handled by SimpleAI');
             
+            // DEBUG: Check if chat elements exist immediately
+            setTimeout(() => {
+                const chatToggleBtn = document.getElementById('chatToggleBtn');
+                const chatInterface = document.getElementById('chatInterface');
+                const chatPromptForm = document.getElementById('chatPromptForm');
+                const chatPromptInput = document.getElementById('chatPromptInput');
+                
+                console.log('🔍 IMMEDIATE CHECK - Chat elements:', {
+                    chatToggleBtn: !!chatToggleBtn,
+                    chatInterface: !!chatInterface,
+                    chatPromptForm: !!chatPromptForm,
+                    chatPromptInput: !!chatPromptInput
+                });
+                
+                // Add immediate event listener for testing
+                if (chatPromptForm) {
+                    console.log('✅ Adding immediate test listener to chat form');
+                    chatPromptForm.addEventListener('click', function(e) {
+                        console.log('🔥 IMMEDIATE TEST: Chat form clicked!');
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        const message = chatPromptInput?.value?.trim();
+                        console.log('💬 IMMEDIATE TEST: Message:', message);
+                        
+                        if (message) {
+                            console.log('✅ IMMEDIATE TEST: Message found, calling sendChatMessage');
+                            if (window.simpleAI && window.simpleAI.sendChatMessage) {
+                                window.simpleAI.sendChatMessage();
+                            } else {
+                                console.error('❌ IMMEDIATE TEST: simpleAI.sendChatMessage not found');
+                            }
+                        }
+                    });
+                }
+                
+                if (chatPromptInput) {
+                    console.log('✅ Adding immediate test listener to chat input');
+                    chatPromptInput.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            console.log('🔥 IMMEDIATE TEST: Enter pressed!');
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            const message = chatPromptInput?.value?.trim();
+                            console.log('💬 IMMEDIATE TEST: Message:', message);
+                            
+                            if (message) {
+                                console.log('✅ IMMEDIATE TEST: Message found, calling sendChatMessage');
+                                if (window.simpleAI && window.simpleAI.sendChatMessage) {
+                                    window.simpleAI.sendChatMessage();
+                                } else {
+                                    console.error('❌ IMMEDIATE TEST: simpleAI.sendChatMessage not found');
+                                }
+                            }
+                        }
+                    });
+                }
+            }, 1000);
+            
             // File Upload Functionality
             const fileUploadBox = document.getElementById('fileUploadBox');
             const fileInput = document.getElementById('fileInput');
@@ -1557,6 +1617,32 @@
                 };
             }
         }, 2000);
+        
+        // TEST FUNCTION - Call this from console to test chat
+        window.testChat = function(message = "Hello, test message") {
+            console.log('🧪 TEST CHAT: Testing with message:', message);
+            
+            const chatPromptInput = document.getElementById('chatPromptInput');
+            const chatHistory = document.getElementById('chatHistory');
+            
+            if (!chatPromptInput || !chatHistory) {
+                console.error('❌ TEST CHAT: Missing chat elements');
+                return;
+            }
+            
+            // Set the message
+            chatPromptInput.value = message;
+            
+            // Call sendChatMessage directly
+            if (window.simpleAI && window.simpleAI.sendChatMessage) {
+                console.log('✅ TEST CHAT: Calling sendChatMessage');
+                window.simpleAI.sendChatMessage();
+            } else {
+                console.error('❌ TEST CHAT: simpleAI.sendChatMessage not found');
+            }
+        };
+        
+        console.log('🧪 TEST FUNCTION: Call testChat("your message") from console to test');
     </script>
     <script>
         // Force correct positioning and styling with sidebar movement
